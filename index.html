@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>영진 ♥ 수연 결혼식에 초대합니다</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --water-surface: #7CB9C9;
+    --water-mid: #3D8FA6;
+    --water-deep: #1A4B6E;
+    --water-abyss: #0C2D4A;
+    --coral: #FF7F6B;
+    --gold: #D4A853;
+  }
+  html { overflow-x: hidden; }
+  body {
+    font-family: 'Noto Serif KR', serif;
+    background: var(--water-abyss);
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  /* ===== SCROLL SPACER ===== */
+  .scroll-canvas { height: 700vh; }
+
+  /* ===== BACKGROUNDS ===== */
+  .bg-layer {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100vh;
+    pointer-events: none; z-index: 0;
+    opacity: 0; transition: opacity 0.5s;
+  }
+  .bg-surface {
+    background: linear-gradient(180deg, #FFF5E6 0%, #FFE4C4 15%, #FFDAB0 25%, #B8D8E8 40%, var(--water-surface) 55%, var(--water-mid) 100%);
+    opacity: 1;
+  }
+  .bg-shallow {
+    background: linear-gradient(180deg, var(--water-surface) 0%, var(--water-mid) 30%, #2A7090 60%, var(--water-deep) 100%);
+  }
+  .bg-deep {
+    background: linear-gradient(180deg, var(--water-deep) 0%, var(--water-abyss) 40%, #0A2540 70%, #081E35 100%);
+  }
+  .bg-coral {
+    background: linear-gradient(180deg, #081E35 0%, #0D2E4A 25%, #154060 50%, #1A5070 75%, var(--water-mid) 100%);
+  }
+  .bg-rise {
+    background: linear-gradient(180deg, var(--water-mid) 0%, var(--water-surface) 30%, #B8D8E8 60%, #FFE4C4 85%, #FFF5E6 100%);
+  }
+
+  /* ===== ENVIRONMENT ===== */
+  .env-layer {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100vh;
+    pointer-events: none; z-index: 1; overflow: hidden;
+  }
+  .sun {
+    position: absolute; top: 8%; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, #FFE08C, #FFD060);
+    border-radius: 50%;
+    box-shadow: 0 0 60px rgba(255,208,96,0.6), 0 0 120px rgba(255,208,96,0.3);
+    transition: opacity 0.5s;
+  }
+  .cloud {
+    position: absolute; background: rgba(255,255,255,0.7); border-radius: 50px;
+    animation: float-cloud 20s ease-in-out infinite; transition: opacity 0.5s;
+  }
+  .cloud:nth-child(2) { width: 120px; height: 40px; top: 12%; left: 10%; }
+  .cloud:nth-child(3) { width: 80px; height: 30px; top: 18%; left: 65%; animation-delay: -7s; }
+  .cloud:nth-child(4) { width: 100px; height: 35px; top: 8%; left: 40%; animation-delay: -14s; }
+  @keyframes float-cloud { 0%,100%{ transform:translateX(0) } 50%{ transform:translateX(30px) } }
+
+  .water-line {
+    position: absolute; top: 50%; width: 100%; height: 60px; overflow: hidden; transition: opacity 0.5s;
+  }
+  .wave-svg { position: absolute; width: 200%; height: 100%; animation: wscroll 6s linear infinite; }
+  @keyframes wscroll { 0%{ transform:translateX(0) } 100%{ transform:translateX(-50%) } }
+
+  .light-rays { position: absolute; top: 0; width: 100%; height: 70%; overflow: hidden; opacity: 0; transition: opacity 0.5s; }
+  .ray {
+    position: absolute; top: -20%; width: 60px; height: 120%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
+    animation: rsway 8s ease-in-out infinite;
+  }
+  .ray:nth-child(1){ left:12%; transform:rotate(-18deg) }
+  .ray:nth-child(2){ left:30%; width:80px; transform:rotate(-6deg); animation-delay:-2s }
+  .ray:nth-child(3){ left:52%; transform:rotate(6deg); animation-delay:-4s }
+  .ray:nth-child(4){ left:78%; width:40px; transform:rotate(18deg); animation-delay:-6s }
+  @keyframes rsway {
+    0%,100%{ opacity:.6; transform:rotate(var(--r,-10deg)) skewX(3deg) }
+    50%{ opacity:1; transform:rotate(calc(var(--r,-10deg) + 8deg)) skewX(-3deg) }
+  }
+
+  .bubbles-c { position:absolute; width:100%; height:100%; overflow:hidden; opacity:0; transition:opacity .5s }
+  .bub {
+    position:absolute; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.5),rgba(255,255,255,.08));
+    border:1px solid rgba(255,255,255,.2);
+    animation:bup linear infinite;
+  }
+  .bub:nth-child(1){width:8px;height:8px;left:22%;animation-duration:7s}
+  .bub:nth-child(2){width:12px;height:12px;left:42%;animation-duration:9s;animation-delay:1s}
+  .bub:nth-child(3){width:5px;height:5px;left:58%;animation-duration:6s;animation-delay:2.5s}
+  .bub:nth-child(4){width:10px;height:10px;left:74%;animation-duration:8s;animation-delay:.5s}
+  .bub:nth-child(5){width:6px;height:6px;left:36%;animation-duration:10s;animation-delay:3s}
+  .bub:nth-child(6){width:14px;height:14px;left:65%;animation-duration:11s;animation-delay:1.5s}
+  @keyframes bup { 0%{bottom:-20px;opacity:0} 10%{opacity:.7} 90%{opacity:.3} 100%{bottom:110%;opacity:0;transform:translateX(15px)} }
+
+  .particles-c { position:absolute; width:100%; height:100%; overflow:hidden; opacity:0; transition:opacity .5s }
+  .ptc { position:absolute; width:3px; height:3px; background:rgba(255,255,255,.35); border-radius:50%; animation:pdrift 16s linear infinite }
+  .ptc:nth-child(1){left:12%;top:25%;animation-duration:13s}
+  .ptc:nth-child(2){left:35%;top:65%;animation-duration:19s;animation-delay:-4s}
+  .ptc:nth-child(3){left:55%;top:40%;animation-duration:15s;animation-delay:-8s}
+  .ptc:nth-child(4){left:78%;top:75%;animation-duration:17s;animation-delay:-2s}
+  .ptc:nth-child(5){left:88%;top:20%;animation-duration:21s;animation-delay:-12s}
+  @keyframes pdrift {
+    0%{transform:translate(0,0);opacity:.15} 25%{transform:translate(12px,-25px);opacity:.5}
+    50%{transform:translate(-8px,-50px);opacity:.25} 75%{transform:translate(18px,-75px);opacity:.55}
+    100%{transform:translate(0,-100px);opacity:.15}
+  }
+
+  .coral-c { position:absolute; bottom:0; width:100%; height:35%; overflow:hidden; opacity:0; transition:opacity .5s }
+  .coral-p { position:absolute; bottom:0; animation:csway 6s ease-in-out infinite; transform-origin:bottom center }
+  @keyframes csway { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+
+  /* ===== DUCKS (individually positioned, fixed) ===== */
+  .duck-el {
+    position: fixed;
+    z-index: 50;
+    pointer-events: none;
+    will-change: transform;
+    transition: filter 0.5s;
+  }
+
+  /* ===== CONTENT PANELS ===== */
+  .content-panel {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 10; pointer-events: none;
+    opacity: 0; transition: opacity 0.5s;
+    padding: 24px;
+  }
+  .content-panel.active { opacity: 1; pointer-events: auto; }
+
+  /* Title */
+  .panel-title { justify-content:flex-start; padding-top:12vh }
+  .panel-title .subtitle {
+    font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:6px;
+    color:rgba(100,70,40,.6); text-transform:uppercase; margin-bottom:12px;
+  }
+  .panel-title .names { font-size:28px; font-weight:300; color:#5A3E28; letter-spacing:4px; text-align:center }
+  .panel-title .heart { color:var(--coral); display:inline-block; animation:hb 2s ease-in-out infinite; margin:0 8px }
+  @keyframes hb { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+  .scroll-hint {
+    position:fixed; bottom:6vh; left:50%; transform:translateX(-50%);
+    text-align:center; color:rgba(255,255,255,.65); font-size:11px; letter-spacing:2px;
+    z-index:60; animation:hp 2.5s ease-in-out infinite; transition:opacity .5s;
+  }
+  .scroll-hint .arrow { display:block; font-size:18px; margin-top:6px; animation:ab 1.5s ease-in-out infinite }
+  @keyframes hp { 0%,100%{opacity:.4} 50%{opacity:1} }
+  @keyframes ab { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+  /* Dive */
+  .panel-dive { justify-content:flex-end; padding-bottom:12vh }
+  .panel-dive h2 {
+    font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:300; font-style:italic;
+    letter-spacing:3px; color:rgba(255,255,255,.55); margin-bottom:16px; text-align:center;
+  }
+  .panel-dive p { font-size:14px; font-weight:300; line-height:2.2; color:rgba(255,255,255,.8); letter-spacing:1px; text-align:center }
+
+  /* Invitation */
+  .invitation-card {
+    background:rgba(255,255,255,.06); backdrop-filter:blur(24px);
+    border:1px solid rgba(255,255,255,.12); border-radius:24px;
+    padding:44px 28px; max-width:340px; width:100%; text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  .invitation-card .deco-line { width:40px; height:1px; background:var(--gold); margin:0 auto 20px; opacity:.6 }
+  .invitation-card .label { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:5px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:18px }
+  .invitation-card .couple-names { font-size:24px; font-weight:300; color:#fff; letter-spacing:3px; margin-bottom:6px }
+  .invitation-card .amp { font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--coral); margin:0 6px; font-size:20px }
+  .invitation-card .parents { font-size:12px; color:rgba(255,255,255,.4); font-weight:300; margin-bottom:28px; line-height:1.8 }
+  .invitation-card .date-block { margin:20px 0; padding:20px 0; border-top:1px solid rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.08) }
+  .invitation-card .year { font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:6px; color:rgba(255,255,255,.4); margin-bottom:6px }
+  .invitation-card .date { font-family:'Cormorant Garamond',serif; font-size:46px; font-weight:300; color:#fff; letter-spacing:2px }
+  .invitation-card .day-time { font-size:13px; color:rgba(255,255,255,.6); margin-top:6px; letter-spacing:2px }
+  .invitation-card .venue { margin-top:20px; font-size:13px; color:rgba(255,255,255,.7); line-height:2; font-weight:300 }
+  .invitation-card .venue strong { color:#fff; font-weight:400 }
+
+  /* Gallery */
+  .gallery-wrap { max-width:340px; width:100%; text-align:center }
+  .gallery-wrap .section-label { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:5px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:14px }
+  .gallery-wrap h2 { font-size:22px; font-weight:300; color:#fff; margin-bottom:28px; letter-spacing:2px }
+  .gallery-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px }
+  .gallery-item {
+    aspect-ratio:3/4; background:rgba(255,255,255,.08); border-radius:14px;
+    border:1px solid rgba(255,255,255,.1); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; position:relative; overflow:hidden;
+  }
+  .gallery-item svg { width:40px; height:40px; opacity:.5 }
+  .gallery-item .placeholder-text { position:absolute; bottom:10px; font-size:10px; color:rgba(255,255,255,.3); letter-spacing:1px }
+  .gallery-item:first-child { grid-column:1/-1; aspect-ratio:16/9 }
+
+  /* Closing */
+  .closing-wrap { max-width:340px; text-align:center }
+  .closing-wrap h2 { font-size:19px; font-weight:300; color:#3A2A1A; margin-bottom:20px; letter-spacing:2px; line-height:1.8 }
+  .closing-wrap p { font-size:13px; color:rgba(58,42,26,.6); line-height:2; font-weight:300 }
+  .closing-wrap .date-badge {
+    display:inline-block; margin-top:28px; padding:12px 32px;
+    border:1px solid rgba(58,42,26,.2); border-radius:50px;
+    font-family:'Cormorant Garamond',serif; font-size:14px; letter-spacing:4px; color:#5A3E28;
+  }
+
+  /* Progress */
+  .scroll-progress { position:fixed; top:0; left:0; height:2px; background:linear-gradient(90deg,var(--coral),var(--gold)); z-index:1000 }
+
+  /* Responsive */
+  @media(min-width:480px){
+    body { max-width:430px; margin:0 auto; box-shadow:0 0 60px rgba(0,0,0,.5) }
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- Backgrounds -->
+<div class="bg-layer bg-surface" id="bgSurface"></div>
+<div class="bg-layer bg-shallow" id="bgShallow"></div>
+<div class="bg-layer bg-deep" id="bgDeep"></div>
+<div class="bg-layer bg-coral" id="bgCoral"></div>
+<div class="bg-layer bg-rise" id="bgRise"></div>
+
+<!-- Environment -->
+<div class="env-layer" id="envLayer">
+  <div class="sun" id="elSun"></div>
+  <div class="cloud" id="c1"></div>
+  <div class="cloud" style="animation-delay:-7s" id="c2"></div>
+  <div class="cloud" style="animation-delay:-14s" id="c3"></div>
+  <div class="water-line" id="elWater">
+    <svg class="wave-svg" viewBox="0 0 800 60" preserveAspectRatio="none">
+      <path d="M0,30 Q50,10 100,30 T200,30 T300,30 T400,30 T500,30 T600,30 T700,30 T800,30 L800,60 L0,60Z" fill="rgba(255,255,255,.12)"/>
+      <path d="M0,35 Q50,18 100,35 T200,35 T300,35 T400,35 T500,35 T600,35 T700,35 T800,35 L800,60 L0,60Z" fill="rgba(255,255,255,.06)"/>
+    </svg>
+  </div>
+  <div class="light-rays" id="elRays">
+    <div class="ray" style="--r:-18deg"></div><div class="ray" style="--r:-6deg"></div>
+    <div class="ray" style="--r:6deg"></div><div class="ray" style="--r:18deg"></div>
+  </div>
+  <div class="bubbles-c" id="elBub">
+    <div class="bub"></div><div class="bub"></div><div class="bub"></div>
+    <div class="bub"></div><div class="bub"></div><div class="bub"></div>
+  </div>
+  <div class="particles-c" id="elPtc">
+    <div class="ptc"></div><div class="ptc"></div><div class="ptc"></div>
+    <div class="ptc"></div><div class="ptc"></div>
+  </div>
+  <div class="coral-c" id="elCoral">
+    <svg class="coral-p" style="left:3%;width:50px;height:100px" viewBox="0 0 50 100">
+      <ellipse cx="25" cy="30" rx="20" ry="30" fill="rgba(255,127,107,.35)"/>
+      <ellipse cx="15" cy="50" rx="12" ry="22" fill="rgba(255,100,80,.25)"/>
+      <rect x="20" y="55" width="10" height="45" rx="5" fill="rgba(255,127,107,.3)"/>
+    </svg>
+    <svg class="coral-p" style="left:18%;width:35px;height:75px;animation-delay:-1.5s" viewBox="0 0 35 75">
+      <ellipse cx="18" cy="25" rx="14" ry="25" fill="rgba(255,180,120,.3)"/>
+      <rect x="13" y="45" width="10" height="30" rx="5" fill="rgba(255,180,120,.25)"/>
+    </svg>
+    <svg class="coral-p" style="right:8%;width:55px;height:110px;animation-delay:-3s" viewBox="0 0 55 110">
+      <ellipse cx="28" cy="35" rx="22" ry="35" fill="rgba(255,127,107,.3)"/>
+      <ellipse cx="18" cy="55" rx="14" ry="20" fill="rgba(220,90,90,.2)"/>
+      <rect x="22" y="60" width="12" height="50" rx="6" fill="rgba(255,127,107,.25)"/>
+    </svg>
+    <svg class="coral-p" style="right:28%;width:30px;height:60px;animation-delay:-2s" viewBox="0 0 30 60">
+      <ellipse cx="15" cy="20" rx="12" ry="20" fill="rgba(200,130,170,.3)"/>
+      <rect x="10" y="35" width="10" height="25" rx="5" fill="rgba(200,130,170,.25)"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ===== LEFT DUCK (Male 원앙 — faces RIGHT toward center) ===== -->
+<svg class="duck-el" id="duckL" width="75" height="65" viewBox="0 0 75 65">
+  <!-- Body -->
+  <ellipse cx="38" cy="42" rx="28" ry="16" fill="#E8913A"/>
+  <ellipse cx="38" cy="40" rx="25" ry="13" fill="#D4782A"/>
+  <!-- Wing -->
+  <ellipse cx="30" cy="38" rx="16" ry="10" fill="#1B6B3A"/>
+  <ellipse cx="30" cy="38" rx="12" ry="7" fill="#2D8A4E"/>
+  <path d="M24,32 Q17,30 20,38" fill="#4BA3E3" opacity=".7"/>
+  <!-- Sail feather -->
+  <path d="M22,30 Q14,20 18,34" fill="#E8913A" stroke="#D4782A" stroke-width=".5"/>
+  <path d="M21,28 Q16,22 19,32" fill="#1B6B3A"/>
+  <!-- Head (right side — faces right) -->
+  <circle cx="58" cy="24" r="11" fill="#2D5A1E"/>
+  <circle cx="58" cy="24" r="9.5" fill="#3A7A28"/>
+  <!-- Crest -->
+  <path d="M64,16 Q68,8 60,12 Q64,6 56,14" fill="#6B2D8A" opacity=".8"/>
+  <path d="M62,15 Q66,9 58,13" fill="#8A3DAA" opacity=".6"/>
+  <!-- White eye stripe -->
+  <path d="M52,20 Q58,16 64,20" fill="none" stroke="white" stroke-width="2" opacity=".9"/>
+  <!-- Eye -->
+  <circle cx="61" cy="22" r="2.5" fill="#1A1A1A"/>
+  <circle cx="61.5" cy="21.5" r=".8" fill="white"/>
+  <!-- Beak (pointing right) -->
+  <path d="M68,26 L73,25 L68,28 Z" fill="#CC3333"/>
+  <!-- Neck -->
+  <path d="M54,32 Q56,37 48,42" fill="#E8913A" opacity=".8"/>
+  <!-- Breast -->
+  <ellipse cx="48" cy="44" rx="10" ry="8" fill="#F5E6D3" opacity=".4"/>
+  <!-- Reflection -->
+  <ellipse cx="38" cy="54" rx="26" ry="4" fill="rgba(255,255,255,.08)"/>
+</svg>
+
+<!-- ===== RIGHT DUCK (Female 원앙 — faces LEFT toward center) ===== -->
+<svg class="duck-el" id="duckR" width="75" height="65" viewBox="0 0 75 65">
+  <!-- Body -->
+  <ellipse cx="38" cy="42" rx="28" ry="16" fill="#9B8B7A"/>
+  <ellipse cx="38" cy="40" rx="25" ry="13" fill="#8A7B6A"/>
+  <!-- Wing -->
+  <ellipse cx="45" cy="38" rx="16" ry="10" fill="#7A6B5A"/>
+  <ellipse cx="45" cy="38" rx="12" ry="7" fill="#8A7B6A"/>
+  <!-- Speckles -->
+  <circle cx="48" cy="36" r="1" fill="#6A5B4A" opacity=".5"/>
+  <circle cx="42" cy="39" r="1" fill="#6A5B4A" opacity=".5"/>
+  <circle cx="50" cy="40" r=".8" fill="#6A5B4A" opacity=".4"/>
+  <!-- Head (left side — faces left) -->
+  <circle cx="18" cy="24" r="10" fill="#7A6B5A"/>
+  <circle cx="18" cy="24" r="8.5" fill="#8A7B6A"/>
+  <!-- Eye ring -->
+  <path d="M12,20 Q18,17 24,21" fill="none" stroke="white" stroke-width="1.5" opacity=".7"/>
+  <!-- Eye -->
+  <circle cx="15" cy="22" r="2.5" fill="#1A1A1A"/>
+  <circle cx="14.5" cy="21.5" r=".8" fill="white"/>
+  <!-- Eye line -->
+  <path d="M12,22 Q9,21 7,22" fill="none" stroke="white" stroke-width="1" opacity=".5"/>
+  <!-- Beak (pointing left) -->
+  <path d="M8,26 L3,25 L8,28 Z" fill="#8B6644"/>
+  <!-- Neck -->
+  <path d="M22,32 Q20,37 28,42" fill="#8A7B6A" opacity=".8"/>
+  <!-- Breast -->
+  <ellipse cx="28" cy="44" rx="10" ry="8" fill="#A99B8A" opacity=".4"/>
+  <!-- Reflection -->
+  <ellipse cx="38" cy="54" rx="26" ry="4" fill="rgba(255,255,255,.08)"/>
+</svg>
+
+<!-- ===== CONTENT PANELS ===== -->
+<div class="content-panel panel-title active" id="panelTitle">
+  <div class="subtitle">Wedding Invitation</div>
+  <div class="names">영진 <span class="heart">♥</span> 수연</div>
+</div>
+
+<div class="content-panel panel-dive" id="panelDive">
+  <h2>Dive into our love story</h2>
+  <p>
+    물 위에서 만난 두 사람이<br>
+    함께 깊은 바다 속으로<br>
+    다이빙하듯<br>
+    인생이라는 바다를<br>
+    함께 헤엄쳐 가려 합니다
+  </p>
+</div>
+
+<div class="content-panel" id="panelInvite" style="justify-content:center">
+  <div class="invitation-card">
+    <div class="deco-line"></div>
+    <div class="label">Wedding Invitation</div>
+    <div class="couple-names">김영진 <span class="amp">&</span> 박수연</div>
+    <div class="parents">김OO · 이OO의 장남 영진<br>박OO · 김OO의 장녀 수연</div>
+    <div class="date-block">
+      <div class="year">2 0 2 6</div>
+      <div class="date">08.01</div>
+      <div class="day-time">토요일 오후 2시</div>
+    </div>
+    <div class="venue"><strong>OO웨딩홀</strong><br>서울특별시 OO구 OO로 000</div>
+  </div>
+</div>
+
+<div class="content-panel" id="panelGallery" style="justify-content:center">
+  <div class="gallery-wrap">
+    <div class="section-label">Our Moments</div>
+    <h2>우리의 이야기</h2>
+    <div class="gallery-grid">
+      <div class="gallery-item">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="14" r="10" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/><path d="M12,22 Q20,34 28,22" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/></svg>
+        <span class="placeholder-text">함께한 다이빙</span>
+      </div>
+      <div class="gallery-item">
+        <svg width="40" height="40" viewBox="0 0 40 40"><path d="M20,5 Q35,15 20,35 Q5,15 20,5Z" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/></svg>
+        <span class="placeholder-text">바다 속 추억</span>
+      </div>
+      <div class="gallery-item">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/><path d="M14,18 L26,18 M18,14 L22,14 M16,22 L24,22" stroke="rgba(255,255,255,.2)" stroke-width="1"/></svg>
+        <span class="placeholder-text">함께한 여행</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-panel" id="panelClosing" style="justify-content:center">
+  <div class="closing-wrap">
+    <h2>
+      깊은 바다에서 다시<br>
+      수면 위로 올라오듯<br><br>
+      저희 두 사람<br>
+      새로운 시작을 함께 합니다
+    </h2>
+    <p>
+      바다처럼 깊고 넓은 사랑으로<br>
+      함께 헤엄쳐 나가겠습니다<br><br>
+      귀한 걸음으로<br>
+      축복해 주시면 감사하겠습니다
+    </p>
+    <div class="date-badge">2026. 08. 01 SAT</div>
+  </div>
+</div>
+
+<div class="scroll-hint" id="scrollHint">
+  <span>함께 바다 속으로</span>
+  <span class="arrow">↓</span>
+</div>
+
+<div class="scroll-canvas"></div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const bgS=$('bgSurface'),bgSh=$('bgShallow'),bgD=$('bgDeep'),bgC=$('bgCoral'),bgR=$('bgRise');
+  const elSun=$('elSun'),elWater=$('elWater'),elRays=$('elRays'),elBub=$('elBub'),elPtc=$('elPtc'),elCoral=$('elCoral');
+  const dL=$('duckL'),dR=$('duckR');
+  const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing');
+  const sHint=$('scrollHint'),sProgress=$('scrollProgress');
+
+  // ===== DUCK KEYFRAMES =====
+  // lx/rx = left/right duck center (% of vw), y = % of vh, angle = tilt °, scale
+  //
+  // Panel timing reference:
+  //   Title:      t < 0.12
+  //   Dive text:  0.18 ~ 0.33   ← 오리 다이빙 유지
+  //   Invitation: 0.37 ~ 0.55   ← 오리 다이빙 유지
+  //   Gallery:    0.58 ~ 0.73   ← 여기서 수평으로
+  //   Closing:    0.78 ~        ← 상승 후 수면 복귀
+  //
+  const DK = [
+    // 0: Surface — floating on water
+    { lx: 36, rx: 64, y: 47, angle: 0, scale: 1.0 },
+    // 1: Start tilting
+    { lx: 34, rx: 66, y: 46, angle: 20, scale: 1.0 },
+    // 2: Entering dive
+    { lx: 30, rx: 70, y: 48, angle: 55, scale: 0.95 },
+    // 3: Full duck dive — nearly vertical
+    { lx: 22, rx: 78, y: 52, angle: 75, scale: 0.90 },
+    // 4: Sustained dive — still steep during "Dive into our love story"
+    { lx: 8, rx: 92, y: 50, angle: 70, scale: 0.80 },
+    // 5: Deep dive continues — through Wedding Invitation panel
+    { lx: 4, rx: 96, y: 50, angle: 65, scale: 0.72 },
+    // 6: Still diving at end of invitation — beginning to ease
+    { lx: 4, rx: 96, y: 48, angle: 45, scale: 0.72 },
+    // 7: Leveling out — transitioning toward Our Moments
+    { lx: 4, rx: 96, y: 46, angle: 15, scale: 0.74 },
+    // 8: Horizontal swim — at Our Moments / gallery
+    { lx: 4, rx: 96, y: 44, angle: 0, scale: 0.75 },
+    // 9: Start ascending — leaving gallery
+    { lx: 5, rx: 95, y: 42, angle: -30, scale: 0.78 },
+    // 10: Rising steeply
+    { lx: 10, rx: 90, y: 35, angle: -60, scale: 0.82 },
+    // 11: Near surface — leveling out
+    { lx: 25, rx: 75, y: 18, angle: -20, scale: 0.92 },
+    // 12: Back on surface, settled above closing text
+    { lx: 35, rx: 65, y: 14, angle: 0, scale: 1.0 },
+  ];
+  const DK_TIMES = [0, 0.05, 0.09, 0.13, 0.25, 0.40, 0.50, 0.56, 0.65, 0.73, 0.80, 0.92, 1.0];
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function easeInOut(t) { return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
+
+  function getDuckState(t) {
+    let i = 0;
+    for (let k = 0; k < DK_TIMES.length - 1; k++) {
+      if (t >= DK_TIMES[k] && t <= DK_TIMES[k + 1]) { i = k; break; }
+      if (k === DK_TIMES.length - 2) i = k;
+    }
+    const seg = (t - DK_TIMES[i]) / (DK_TIMES[i+1] - DK_TIMES[i]);
+    const e = easeInOut(Math.max(0, Math.min(1, seg)));
+    const a = DK[i], b = DK[i+1] || a;
+    return {
+      lx: lerp(a.lx, b.lx, e),
+      rx: lerp(a.rx, b.rx, e),
+      y:  lerp(a.y,  b.y,  e),
+      angle: lerp(a.angle, b.angle, e),
+      scale: lerp(a.scale, b.scale, e),
+    };
+  }
+
+  // Gentle continuous bob
+  let phase = 0;
+  function bob(t) {
+    phase += 0.025;
+    const underwater = t > 0.15 && t < 0.8;
+    const amp = underwater ? 5 : 3;
+    return {
+      ly: Math.sin(phase) * amp,
+      ry: Math.sin(phase + 0.7) * amp,
+      lRot: Math.sin(phase * 0.7) * 2.5,
+      rRot: Math.sin(phase * 0.7 + 0.5) * 2.5,
+    };
+  }
+
+  // Duck bubble trail
+  let bubTimer = 0;
+  function spawnBubble(x, y) {
+    const el = document.createElement('div');
+    const sz = 3 + Math.random() * 7;
+    el.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.5),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.2);pointer-events:none;z-index:45;transition:all 2s ease-out;`;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => {
+      el.style.top = (y - 70 - Math.random() * 50) + 'px';
+      el.style.left = (x + (Math.random()-.5)*25) + 'px';
+      el.style.opacity = '0';
+    });
+    setTimeout(() => el.remove(), 2200);
+  }
+
+  // ===== MAIN LOOP =====
+  function update() {
+    const scrollTop = window.scrollY;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const t = Math.max(0, Math.min(1, scrollTop / maxScroll));
+
+    sProgress.style.width = (t*100)+'%';
+
+    // Backgrounds
+    bgS.style.opacity  = t<.12 ? 1 : t<.2 ? 1-(t-.12)/.08 : 0;
+    bgSh.style.opacity = t>.1&&t<.38 ? Math.min(1,(t-.1)/.08)*(t<.3?1:1-(t-.3)/.08) : 0;
+    bgD.style.opacity  = t>.28&&t<.58 ? Math.min(1,(t-.28)/.08)*(t<.5?1:1-(t-.5)/.08) : 0;
+    bgC.style.opacity  = t>.5&&t<.8 ? Math.min(1,(t-.5)/.08)*(t<.72?1:1-(t-.72)/.08) : 0;
+    bgR.style.opacity  = t>.72 ? Math.min(1,(t-.72)/.08) : 0;
+
+    // Environment
+    const surf = t<.15, rise = t>.82;
+    elSun.style.opacity = surf||rise?1:0;
+    document.querySelectorAll('.cloud').forEach(c=>c.style.opacity=surf||rise?.7:0);
+    elWater.style.opacity = surf||rise?1:0;
+    elRays.style.opacity = t>.12&&t<.45 ? Math.min(.2,(t-.12)*2) : 0;
+    elBub.style.opacity = t>.14&&t<.82 ? 1 : 0;
+    elPtc.style.opacity = t>.3&&t<.65 ? 1 : 0;
+    elCoral.style.opacity = t>.5&&t<.78 ? Math.min(1,(t-.5)/.05) : 0;
+
+    // Panels
+    pTitle.classList.toggle('active', t<.12);
+    pDive.classList.toggle('active', t>=.18&&t<.33);
+    pInvite.classList.toggle('active', t>=.37&&t<.55);
+    pGallery.classList.toggle('active', t>=.58&&t<.73);
+    pClosing.classList.toggle('active', t>=.78);
+    sHint.style.opacity = t<.08?1:0;
+
+    // === DUCKS ===
+    const st = getDuckState(t);
+    const b = bob(t);
+    const vw = Math.min(window.innerWidth, 430);
+    const vh = window.innerHeight;
+    const dw = 75, dh = 65; // duck svg size
+
+    // Left duck: positioned by lx%, faces right
+    const lPixX = (st.lx / 100) * vw - dw/2;
+    const lPixY = (st.y / 100) * vh - dh/2 + b.ly;
+    const lAngle = st.angle + b.lRot;
+    dL.style.transform = `translate(${lPixX}px, ${lPixY}px) rotate(${lAngle}deg) scale(${st.scale})`;
+
+    // Right duck: positioned by rx%, faces left
+    const rPixX = (st.rx / 100) * vw - dw/2;
+    const rPixY = (st.y / 100) * vh - dh/2 + b.ry;
+    const rAngle = -st.angle + b.rRot; // mirrored angle
+    dR.style.transform = `translate(${rPixX}px, ${rPixY}px) rotate(${rAngle}deg) scale(${st.scale})`;
+
+    // Underwater effects
+    const uw = t>.16 && t<.82;
+    const glow = uw
+      ? `drop-shadow(0 0 12px rgba(100,200,255,.3)) brightness(${.85+Math.sin(phase*.5)*.1})`
+      : 'drop-shadow(0 4px 10px rgba(0,0,0,.25))';
+    dL.style.filter = glow;
+    dR.style.filter = glow;
+
+    // Bubble trails
+    if (uw) {
+      bubTimer++;
+      if (bubTimer % 15 === 0) {
+        spawnBubble(lPixX + dw * .8, lPixY + 5);
+      }
+      if (bubTimer % 22 === 0) {
+        spawnBubble(rPixX + dw * .2, rPixY + 5);
+      }
+    }
+  }
+
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) { requestAnimationFrame(() => { update(); ticking=false; }); ticking=true; }
+  });
+
+  // Also run on resize
+  window.addEventListener('resize', update);
+
+  // Initial
+  update();
+})();
+</script>
+
+</body>
+</html>
