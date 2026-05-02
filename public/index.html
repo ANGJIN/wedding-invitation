@@ -6,6 +6,7 @@
 <title>영진 ♥ 수연 결혼식에 초대합니다</title>
 <script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
 <script>
   window.db = (window.SUPABASE_URL && window.SUPABASE_URL !== 'https://your-project.supabase.co')
     ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY)
@@ -496,6 +497,138 @@
     font-family:'Cormorant Garamond',serif; font-size:14px; letter-spacing:4px; color:#5A3E28;
   }
 
+  /* Info — share + 마음 전하실 곳 */
+  #panelInfo {
+    padding:0 !important;
+    justify-content:flex-start !important;
+    align-items:stretch !important;
+  }
+  .info-scroll {
+    width:100%; max-width:430px; margin:0 auto;
+    height:100vh; overflow-y:auto;
+    padding:48px 24px 60px;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:auto;
+  }
+  .info-scroll::-webkit-scrollbar { width:0; background:transparent; }
+
+  .share-section { text-align:center; margin-bottom:44px; }
+  .share-eyebrow,
+  .thanks-eyebrow {
+    font-family:'Cormorant Garamond',serif; font-size:11px;
+    letter-spacing:5px; text-transform:uppercase;
+    color:rgba(58,42,26,.5); margin-bottom:8px;
+  }
+  .share-title,
+  .thanks-title {
+    font-size:19px; font-weight:300; color:#3A2A1A;
+    letter-spacing:3px; margin-bottom:8px;
+  }
+  .share-sub,
+  .thanks-desc {
+    font-size:12px; color:rgba(58,42,26,.6);
+    line-height:2; font-weight:300;
+  }
+  .share-sub { margin-bottom:22px; }
+  .thanks-desc { margin-bottom:26px; }
+
+  .share-buttons {
+    display:flex; gap:10px; justify-content:center;
+  }
+  .share-btn {
+    flex:1; max-width:160px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:13px 14px;
+    background:rgba(255,255,255,.55); border:1px solid rgba(212,168,83,.4);
+    border-radius:50px;
+    color:#3A2A1A; font-family:'Noto Serif KR',serif; font-size:12px; font-weight:300;
+    letter-spacing:.5px; cursor:pointer;
+    transition: background .2s, transform .15s;
+  }
+  .share-btn:active { transform:scale(.97); background:rgba(255,255,255,.75); }
+  .share-btn svg { width:16px; height:16px; flex-shrink:0; }
+  .share-btn.kakao { background:#FEE500; border-color:#E6CE00; color:#3A2A1A; }
+  .share-btn.kakao:active { background:#F5D900; }
+
+  .thanks-section { text-align:center; }
+
+  .acc-group {
+    background:rgba(255,255,255,.5);
+    border:1px solid rgba(212,168,83,.3);
+    border-radius:14px;
+    margin-bottom:14px;
+    overflow:hidden;
+    text-align:left;
+  }
+  .acc-toggle {
+    width:100%; display:flex; justify-content:center; align-items:center; gap:10px;
+    padding:14px 16px;
+    background:transparent; border:none; cursor:pointer;
+    color:#5A3E28; font-family:'Noto Serif KR',serif;
+    font-size:13px; font-weight:400; letter-spacing:2px;
+  }
+  .acc-arrow {
+    width:9px; height:9px; display:inline-block;
+    border-right:1.5px solid #5A3E28;
+    border-bottom:1.5px solid #5A3E28;
+    transform: rotate(45deg);
+    transition: transform .25s;
+    margin-bottom:3px;
+  }
+  .acc-group.open .acc-arrow { transform: rotate(-135deg); margin-bottom:-3px; }
+  .acc-body {
+    display:none;
+    padding:0 16px 12px;
+    border-top:1px solid rgba(212,168,83,.22);
+  }
+  .acc-group.open .acc-body { display:block; }
+
+  .acc-row {
+    padding:14px 0;
+    border-bottom:1px dashed rgba(212,168,83,.25);
+    display:flex; align-items:center; gap:10px;
+  }
+  .acc-row:last-child { border-bottom:0; }
+  .acc-info { flex:1; min-width:0; }
+  .acc-line {
+    display:flex; align-items:baseline; gap:8px;
+    font-size:13px; color:#3A2A1A; font-weight:400;
+    line-height:1.7;
+  }
+  .acc-label {
+    flex-shrink:0; min-width:42px;
+    font-size:11px; letter-spacing:1px;
+    color:rgba(58,42,26,.55); font-weight:300;
+  }
+  .acc-num {
+    font-family:'Cormorant Garamond',serif;
+    letter-spacing:.5px; word-break:break-all;
+  }
+  .acc-copy {
+    flex-shrink:0;
+    padding:8px 12px;
+    background:rgba(212,168,83,.18); border:1px solid rgba(212,168,83,.4);
+    border-radius:50px;
+    font-family:'Noto Serif KR',serif; font-size:11px;
+    color:#5A3E28; cursor:pointer;
+    transition: background .2s;
+  }
+  .acc-copy:active { background:rgba(212,168,83,.34); }
+  .acc-copy.copied { background:rgba(255,127,107,.22); border-color:rgba(255,127,107,.45); color:var(--coral); }
+
+  /* Toast */
+  .toast {
+    position:fixed; bottom:80px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:rgba(58,42,26,.92); color:#fff;
+    padding:10px 22px; border-radius:50px;
+    font-size:12px; letter-spacing:.5px;
+    opacity:0; pointer-events:none;
+    transition: opacity .25s, transform .25s;
+    z-index:9999;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
   /* Progress */
   .scroll-progress { position:fixed; top:0; left:0; height:2px; background:linear-gradient(90deg,var(--coral),var(--gold)); z-index:1000 }
 
@@ -703,6 +836,102 @@
     <div class="date-badge">2026. 08. 01 SAT</div>
   </div>
 </div>
+
+<!-- 정보 패널: 카카오 공유 + 링크 복사 + 마음 전하실 곳 -->
+<div class="content-panel" id="panelInfo">
+  <div class="info-scroll">
+    <section class="share-section">
+      <div class="share-eyebrow">Share</div>
+      <h2 class="share-title">소식 전하기</h2>
+      <p class="share-sub">함께 나누고 싶은 분들께<br>이 청첩장을 전해 보세요</p>
+      <div class="share-buttons">
+        <button class="share-btn kakao" id="btnKakaoShare" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#3A2A1A" d="M12 3.5C6.75 3.5 2.5 6.86 2.5 11c0 2.6 1.66 4.88 4.18 6.23-.18.65-.66 2.39-.76 2.78-.03.13-.13.18-.27.16-.13-.03 1.39-.92 2.97-1.99.45.06.91.09 1.38.09 5.25 0 9.5-3.36 9.5-7.5S17.25 3.5 12 3.5z"/>
+          </svg>
+          카카오톡 공유
+        </button>
+        <button class="share-btn" id="btnLinkCopy" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3A2A1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          링크 복사
+        </button>
+      </div>
+    </section>
+
+    <section class="thanks-section">
+      <div class="thanks-eyebrow">Thanks To</div>
+      <h2 class="thanks-title">마음 전하실 곳</h2>
+      <p class="thanks-desc">
+        직접 축하를 전하지 못하시는 분들을 위해<br>
+        부득이하게 계좌번호를 기재하게 되었습니다.<br>
+        넓은 마음으로 양해 부탁드립니다.
+      </p>
+
+      <div class="acc-group" data-side="groom">
+        <button class="acc-toggle" type="button">
+          신랑 측 계좌번호 <span class="acc-arrow"></span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-row">
+            <div class="acc-info">
+              <div class="acc-line"><span class="acc-label">신랑</span><span>김영진</span></div>
+              <div class="acc-line"><span class="acc-label">은행</span><span class="acc-num">000-000000-00-000</span></div>
+            </div>
+            <button class="acc-copy" type="button" data-copy="김영진 000-000000-00-000">복사</button>
+          </div>
+          <div class="acc-row">
+            <div class="acc-info">
+              <div class="acc-line"><span class="acc-label">아버지</span><span>김정국</span></div>
+              <div class="acc-line"><span class="acc-label">은행</span><span class="acc-num">000-000000-00-000</span></div>
+            </div>
+            <button class="acc-copy" type="button" data-copy="김정국 000-000000-00-000">복사</button>
+          </div>
+          <div class="acc-row">
+            <div class="acc-info">
+              <div class="acc-line"><span class="acc-label">어머니</span><span>허재경</span></div>
+              <div class="acc-line"><span class="acc-label">은행</span><span class="acc-num">000-000000-00-000</span></div>
+            </div>
+            <button class="acc-copy" type="button" data-copy="허재경 000-000000-00-000">복사</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-group" data-side="bride">
+        <button class="acc-toggle" type="button">
+          신부 측 계좌번호 <span class="acc-arrow"></span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-row">
+            <div class="acc-info">
+              <div class="acc-line"><span class="acc-label">신부</span><span>박수연</span></div>
+              <div class="acc-line"><span class="acc-label">은행</span><span class="acc-num">000-000000-00-000</span></div>
+            </div>
+            <button class="acc-copy" type="button" data-copy="박수연 000-000000-00-000">복사</button>
+          </div>
+          <div class="acc-row">
+            <div class="acc-info">
+              <div class="acc-line"><span class="acc-label">아버지</span><span>박홍근</span></div>
+              <div class="acc-line"><span class="acc-label">은행</span><span class="acc-num">000-000000-00-000</span></div>
+            </div>
+            <button class="acc-copy" type="button" data-copy="박홍근 000-000000-00-000">복사</button>
+          </div>
+          <div class="acc-row">
+            <div class="acc-info">
+              <div class="acc-line"><span class="acc-label">어머니</span><span>한현순</span></div>
+              <div class="acc-line"><span class="acc-label">은행</span><span class="acc-num">000-000000-00-000</span></div>
+            </div>
+            <button class="acc-copy" type="button" data-copy="한현순 000-000000-00-000">복사</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <div class="scroll-hint" id="scrollHint">
   <span>같이 뛰어들어요</span>
@@ -1070,6 +1299,97 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // ===== Info panel: share + 마음 전하실 곳 =====
+  const toastEl = document.getElementById('toast');
+  let toastTimer = null;
+  function showToast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
+  }
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+      const t = document.createElement('textarea');
+      t.value = text;
+      t.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+      document.body.appendChild(t);
+      t.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(t);
+      return ok;
+    } catch (_) { return false; }
+  }
+
+  document.querySelectorAll('.acc-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.acc-group').classList.toggle('open');
+    });
+  });
+  document.querySelectorAll('.acc-copy').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const ok = await copyText(btn.dataset.copy || '');
+      if (ok) {
+        const orig = btn.textContent;
+        btn.classList.add('copied');
+        btn.textContent = '완료';
+        showToast('계좌번호가 복사되었습니다');
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1500);
+      } else {
+        showToast('복사에 실패했어요');
+      }
+    });
+  });
+
+  const btnLink = document.getElementById('btnLinkCopy');
+  if (btnLink) {
+    btnLink.addEventListener('click', async () => {
+      const ok = await copyText(window.location.href);
+      showToast(ok ? '링크가 복사되었습니다' : '복사에 실패했어요');
+    });
+  }
+
+  const btnKakao = document.getElementById('btnKakaoShare');
+  if (btnKakao) {
+    btnKakao.addEventListener('click', async () => {
+      const appKey = window.KAKAO_APP_KEY;
+      if (window.Kakao && appKey) {
+        try {
+          if (!window.Kakao.isInitialized()) window.Kakao.init(appKey);
+          window.Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+              title: '영진 ♥ 수연 결혼식에 초대합니다',
+              description: '2026년 8월 1일 토요일 오후 1시 30분\n케이터틀 (서울 마포구 백범로 23)',
+              imageUrl: window.KAKAO_SHARE_IMAGE || (window.location.origin + '/og.jpg'),
+              link: { mobileWebUrl: window.location.href, webUrl: window.location.href },
+            },
+            buttons: [{
+              title: '청첩장 보기',
+              link: { mobileWebUrl: window.location.href, webUrl: window.location.href },
+            }],
+          });
+          return;
+        } catch (err) {
+          console.error('kakao share failed', err);
+        }
+      }
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: '영진 ♥ 수연 결혼식', url: window.location.href });
+          return;
+        } catch (_) {}
+      }
+      const ok = await copyText(window.location.href);
+      showToast(ok ? '링크가 복사되었습니다' : '공유에 실패했어요');
+    });
+  }
   document.getElementById('lbClose').addEventListener('click', closeLightbox);
   document.getElementById('lbPrev').addEventListener('click', () => { lbIndex--; showLbItem(); });
   document.getElementById('lbNext').addEventListener('click', () => { lbIndex++; showLbItem(); });
@@ -1098,7 +1418,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const bgS=$('bgSurface'),bgSh=$('bgShallow'),bgD=$('bgDeep'),bgC=$('bgCoral'),bgR=$('bgRise');
   const elSun=$('elSun'),elWater=$('elWater'),elRays=$('elRays'),elBub=$('elBub'),elPtc=$('elPtc'),elCoral=$('elCoral');
   const dL=$('duckL'),dR=$('duckR');
-  const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing'),pGuestbook=$('panelGuestbook');
+  const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing'),pInfo=$('panelInfo'),pGuestbook=$('panelGuestbook');
   const sHint=$('scrollHint'),sProgress=$('scrollProgress');
 
   // ===== DUCK KEYFRAMES =====
@@ -1109,7 +1429,9 @@ document.addEventListener('DOMContentLoaded', () => {
   //   Dive text:  0.18 ~ 0.33   ← 오리 다이빙 유지
   //   Invitation: 0.37 ~ 0.55   ← 오리 다이빙 유지
   //   Gallery:    0.58 ~ 0.73   ← 여기서 수평으로
-  //   Closing:    0.78 ~        ← 상승 후 수면 복귀
+  //   Closing:    0.78 ~ 0.86   ← 상승 후 수면 복귀, 안착 후 잠시 머묾
+  //   Info:       0.86 ~ 0.94   ← 공유 + 마음 전하실 곳
+  //   Guestbook:  0.94 ~        ← 최하단
   //
   const DK = [
     // 0: Surface — floating on water
@@ -1139,7 +1461,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 12: Back on surface, settled above closing text
     { lx: 35, rx: 65, y: 14, angle: 0, scale: 1.0 },
   ];
-  const DK_TIMES = [0, 0.05, 0.09, 0.13, 0.25, 0.40, 0.50, 0.56, 0.65, 0.73, 0.80, 0.92, 1.0];
+  const DK_TIMES = [0, 0.05, 0.09, 0.13, 0.25, 0.40, 0.50, 0.56, 0.65, 0.73, 0.78, 0.81, 0.84];
 
   function lerp(a, b, t) { return a + (b - a) * t; }
   function easeInOut(t) { return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
@@ -1207,7 +1529,8 @@ document.addEventListener('DOMContentLoaded', () => {
     bgR.style.opacity  = t>.72 ? Math.min(1,(t-.72)/.08) : 0;
 
     // Environment
-    const surf = t<.15, rise = t>.82;
+    // rise: closing 구간(0.82~0.86)에서만 태양/수면/구름 노출 → Info·Guestbook에선 숨김
+    const surf = t<.15, rise = t>.82 && t<.86;
     elSun.style.opacity = surf||rise?1:0;
     document.querySelectorAll('.cloud').forEach(c=>c.style.opacity=surf||rise?.7:0);
     elWater.style.opacity = surf||rise?1:0;
@@ -1221,8 +1544,9 @@ document.addEventListener('DOMContentLoaded', () => {
     pDive.classList.toggle('active', t>=.18&&t<.33);
     pInvite.classList.toggle('active', t>=.37&&t<.55);
     pGallery.classList.toggle('active', t>=.58&&t<.73);
-    pClosing.classList.toggle('active', t>=.78&&t<.88);
-    pGuestbook.classList.toggle('active', t>=.88);
+    pClosing.classList.toggle('active', t>=.78&&t<.86);
+    pInfo.classList.toggle('active', t>=.86&&t<.94);
+    pGuestbook.classList.toggle('active', t>=.94);
     sHint.classList.toggle('hidden', t >= .08);
 
     // === DUCKS ===
@@ -1252,10 +1576,10 @@ document.addEventListener('DOMContentLoaded', () => {
     dL.style.filter = glow;
     dR.style.filter = glow;
 
-    // 방명록 패널 진입 시 오리 숨기기
-    const inGuestbook = pGuestbook.classList.contains('active');
-    dL.style.opacity = inGuestbook ? '0' : '1';
-    dR.style.opacity = inGuestbook ? '0' : '1';
+    // 정보/방명록 패널 진입 시 오리 숨기기
+    const hideDucks = pInfo.classList.contains('active') || pGuestbook.classList.contains('active');
+    dL.style.opacity = hideDucks ? '0' : '1';
+    dR.style.opacity = hideDucks ? '0' : '1';
 
     // Bubble trails
     if (uw) {
