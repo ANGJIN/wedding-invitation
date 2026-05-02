@@ -1,5 +1,5 @@
 {
-  "buildCommand": null,
+  "buildCommand": "printf \"window.SUPABASE_URL='%s';window.SUPABASE_ANON_KEY='%s';\" \"$SUPABASE_URL\" \"$SUPABASE_ANON_KEY\" > public/config.js",
   "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
