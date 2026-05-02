@@ -31,7 +31,7 @@
   }
 
   /* ===== SCROLL SPACER ===== */
-  .scroll-canvas { height: 700vh; }
+  .scroll-canvas { height: 800vh; }
 
   /* ===== BACKGROUNDS ===== */
   .bg-layer {
@@ -211,80 +211,253 @@
   .venue-btn:hover { background:rgba(255,255,255,.16); }
   .venue-btn-map { border-color:rgba(212,168,83,.5); color:var(--gold); }
 
-  /* Gallery */
-  .gallery-wrap { max-width:340px; width:100%; text-align:center }
+  /* Gallery — 2x2 그리드 가로 페이지 캐러셀 */
+  .gallery-wrap { max-width:380px; width:100%; text-align:center }
   .gallery-wrap .section-label { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:5px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:14px }
-  .gallery-wrap h2 { font-size:22px; font-weight:300; color:#fff; margin-bottom:28px; letter-spacing:2px }
-  .gallery-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px }
-  .gallery-item {
-    aspect-ratio:1; background:rgba(255,255,255,.08);
-    position:relative; overflow:hidden; cursor:pointer;
+  .gallery-wrap h2 { font-size:22px; font-weight:300; color:#fff; margin-bottom:22px; letter-spacing:2px }
+  .gallery-carousel {
+    position:relative; width:100%; aspect-ratio:1/1;
+    border-radius:16px; overflow:hidden;
+    background:rgba(255,255,255,.04);
+    box-shadow:0 14px 42px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08);
   }
-  .gallery-item img, .gallery-item video {
+  .gallery-track {
+    display:flex; height:100%; width:100%;
+    transition:transform .42s cubic-bezier(.22,1,.36,1);
+    will-change:transform;
+  }
+  .gallery-slide {
+    flex:0 0 100%; height:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1fr 1fr;
+    gap:6px; padding:6px; box-sizing:border-box;
+    user-select:none;
+  }
+  .gallery-tile {
+    position:relative; overflow:hidden;
+    border-radius:10px;
+    background:rgba(255,255,255,.05);
+    cursor:zoom-in;
+  }
+  .gallery-tile.empty { background:rgba(255,255,255,.02); cursor:default; }
+  .gallery-tile img,
+  .gallery-tile video {
     width:100%; height:100%; object-fit:cover; display:block;
+    pointer-events:none; -webkit-user-drag:none;
   }
-  .gallery-item .play-btn {
+  .gallery-tile .play-btn {
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    width:36px; height:36px; background:rgba(0,0,0,.55); border-radius:50%;
+    width:34px; height:34px; background:rgba(0,0,0,.5); border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-size:14px; color:#fff; pointer-events:none;
+    font-size:13px; color:#fff; pointer-events:none;
+    backdrop-filter:blur(4px);
   }
-  .gallery-item .ph {
-    width:100%; height:100%; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:8px;
+  .gallery-slide.is-empty {
+    display:flex; align-items:center; justify-content:center;
+    padding:0;
   }
-  .gallery-item .ph svg { width:32px; height:32px; opacity:.4 }
-  .gallery-item .ph span { font-size:9px; color:rgba(255,255,255,.3); letter-spacing:1px }
+  .gallery-empty {
+    color:rgba(255,255,255,.35); font-size:12px;
+    padding:60px 24px; text-align:center; line-height:2;
+  }
+  .gallery-arrow {
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:38px; height:38px; border-radius:50%;
+    background:rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.18);
+    color:#fff; font-size:20px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; backdrop-filter:blur(8px);
+    z-index:5; transition:opacity .2s, background .2s, transform .15s;
+    padding:0;
+  }
+  .gallery-arrow:hover { background:rgba(0,0,0,.6); }
+  .gallery-arrow:active { transform:translateY(-50%) scale(.92); }
+  .gallery-prev { left:8px; }
+  .gallery-next { right:8px; }
+  .gallery-arrow:disabled { opacity:.2; cursor:default; }
+  .gallery-meta {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:14px; padding:0 4px; gap:12px;
+    font-family:'Cormorant Garamond',serif; font-size:12px; letter-spacing:3px;
+    color:rgba(255,255,255,.6);
+  }
+  .gallery-counter { min-width:54px; text-align:left; white-space:nowrap; }
+  .gallery-hint {
+    font-size:10px; letter-spacing:2px; color:rgba(255,255,255,.35);
+    white-space:nowrap; text-align:right;
+  }
+  .gallery-progress {
+    flex:1; height:2px; background:rgba(255,255,255,.15);
+    border-radius:2px; overflow:hidden; min-width:40px;
+  }
+  .gallery-progress-fill {
+    height:100%; background:linear-gradient(90deg, var(--coral), var(--gold));
+    border-radius:2px;
+    transition:width .42s cubic-bezier(.22,1,.36,1);
+    width:0;
+  }
 
-  /* Guestbook */
-  .guestbook-section {
-    position:relative; z-index:20;
-    background:linear-gradient(180deg, #FFF5E6 0%, #FFE8CC 40%, #FDDBB0 100%);
-    min-height:100vh; padding:64px 24px 80px;
+  /* Guestbook — 청첩장 + 다이빙 마스크 모티프 (기존 배경 위 panel) */
+  #panelGuestbook {
+    padding:0 !important;
+    justify-content:flex-start !important;
+    align-items:stretch !important;
   }
-  .gb-inner { max-width:380px; margin:0 auto; }
-  .gb-header { text-align:center; margin-bottom:36px; }
-  .gb-deco { width:40px; height:1px; background:var(--gold); margin:0 auto 20px; opacity:.5; }
-  .gb-label {
+  .chat-window {
+    width:100%; max-width:430px; margin:0 auto;
+    height:calc(100vh - 84px);
+    display:flex; flex-direction:column;
+    padding:24px 18px 8px;
+  }
+  .chat-header {
+    text-align:center; padding:0 0 14px;
+    margin-bottom:12px;
+  }
+  .chat-mask-icon {
+    width:54px; height:34px; margin:0 auto 8px;
+    display:block; opacity:.95;
+  }
+  .chat-eyebrow {
     font-family:'Cormorant Garamond',serif; font-size:11px;
     letter-spacing:5px; text-transform:uppercase;
-    color:rgba(90,62,40,.45); margin-bottom:14px;
+    color:rgba(58,42,26,.5); margin-bottom:8px;
   }
-  .gb-title { font-size:22px; font-weight:300; color:#3A2A1A; letter-spacing:2px; margin-bottom:10px; }
-  .gb-subtitle { font-size:13px; color:rgba(58,42,26,.45); line-height:2; font-weight:300; }
-  .gb-messages { margin-bottom:36px; display:flex; flex-direction:column; gap:12px; }
-  .gb-loading,.gb-empty {
-    font-size:13px; color:rgba(58,42,26,.4); text-align:center;
-    padding:32px 0; line-height:2.2; font-weight:300;
+  .chat-title {
+    font-size:20px; font-weight:300; color:#3A2A1A; letter-spacing:3px;
   }
-  .gb-card {
-    background:rgba(255,255,255,.55); backdrop-filter:blur(16px);
-    border:1px solid rgba(255,255,255,.7); border-radius:18px;
-    padding:18px 20px; box-shadow:0 4px 20px rgba(90,62,40,.08);
+  .chat-sub {
+    font-family:'Cormorant Garamond',serif; font-size:11px;
+    letter-spacing:3px; color:rgba(58,42,26,.55);
+    margin-top:6px;
   }
-  .gb-card-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
-  .gb-card-name { font-size:13px; font-weight:400; color:#3A2A1A; letter-spacing:.5px; }
-  .gb-card-date { font-size:10px; color:rgba(58,42,26,.35); letter-spacing:.5px; }
-  .gb-card-msg { font-size:13px; color:rgba(58,42,26,.65); line-height:1.9; white-space:pre-wrap; word-break:break-word; font-weight:300; }
-  .gb-form { display:flex; flex-direction:column; gap:10px; }
-  .gb-input,.gb-textarea {
-    width:100%; padding:14px 16px; border-radius:14px;
-    border:1px solid rgba(90,62,40,.18);
-    background:rgba(255,255,255,.55); backdrop-filter:blur(16px);
+  .chat-deco-line {
+    width:40px; height:1px; background:var(--gold);
+    margin:12px auto 0; opacity:.6;
+  }
+
+  /* 메시지 viewport — 다이빙 마스크 lens 느낌 */
+  .chat-viewport {
+    flex:1; position:relative; min-height:0;
+    border-radius:26px 26px 20px 20px / 32px 32px 20px 20px;
+    background:linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.28));
+    border:1px solid rgba(212,168,83,.4);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.6),
+      inset 0 -1px 0 rgba(212,168,83,.18),
+      0 8px 28px rgba(90,62,40,.1);
+    overflow:hidden;
+    backdrop-filter:blur(14px);
+  }
+  /* 마스크 strap */
+  .chat-viewport::before {
+    content:''; position:absolute;
+    top:-5px; left:14%; right:14%; height:10px;
+    background:linear-gradient(180deg, rgba(212,168,83,.55), rgba(212,168,83,0));
+    border-radius:50% 50% 4px 4px;
+    pointer-events:none;
+  }
+  .chat-messages {
+    height:100%; overflow-y:auto;
+    display:flex; flex-direction:column; gap:12px;
+    padding:18px 16px 22px;
+    -webkit-overflow-scrolling:touch;
+    /* boundary 도달 시 페이지 스크롤로 전파 */
+    overscroll-behavior:auto;
+  }
+  .chat-messages::-webkit-scrollbar { width:0; background:transparent; }
+  .chat-loading, .chat-empty {
+    text-align:center; color:rgba(58,42,26,.5); font-size:12px;
+    padding:48px 0; line-height:2; font-weight:300;
+    font-family:'Cormorant Garamond',serif; letter-spacing:1px;
+  }
+
+  /* 메시지 카드 — 청첩장 톤 */
+  .msg {
+    background:rgba(255,255,255,.62);
+    border:1px solid rgba(212,168,83,.25);
+    border-radius:14px;
+    padding:11px 14px 12px;
+    box-shadow:0 2px 8px rgba(90,62,40,.06), inset 0 1px 0 rgba(255,255,255,.7);
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .msg.me {
+    background:linear-gradient(135deg, rgba(255,127,107,.16), rgba(212,168,83,.18));
+    border-color:rgba(255,127,107,.42);
+  }
+  .msg-top {
+    display:flex; justify-content:space-between; align-items:baseline;
+    gap:10px;
+  }
+  .msg-name {
+    font-size:12px; color:#3A2A1A; font-weight:400;
+    letter-spacing:.5px;
+  }
+  .msg-name::before {
+    content:''; display:inline-block;
+    width:5px; height:5px; border-radius:50%;
+    background:var(--gold); margin-right:7px;
+    vertical-align:middle; transform:translateY(-1px);
+    opacity:.75;
+  }
+  .msg.me .msg-name { color:var(--coral); }
+  .msg.me .msg-name::before { background:var(--coral); opacity:.9; }
+  .msg-time {
+    font-family:'Cormorant Garamond',serif;
+    font-size:10px; color:rgba(58,42,26,.5);
+    letter-spacing:1.5px; white-space:nowrap;
+  }
+  .msg-bubble {
+    font-size:13px; color:rgba(58,42,26,.85);
+    line-height:1.7;
+    word-break:break-word; white-space:pre-wrap;
+    font-weight:300;
+  }
+
+  /* 입력바 — 청첩장 톤 */
+  .chat-input-bar {
+    position:absolute; bottom:0; left:0; right:0;
+    display:flex; gap:8px; padding:14px 16px;
+    background:linear-gradient(180deg, rgba(255,245,230,.7), rgba(253,219,176,.92));
+    backdrop-filter:blur(20px);
+    border-top:1px solid rgba(212,168,83,.32);
+    align-items:center; max-width:430px; margin:0 auto;
+    box-shadow:0 -4px 20px rgba(90,62,40,.08);
+  }
+  .chat-name-input {
+    flex:0 0 84px;
+    padding:11px 14px; border-radius:24px;
+    border:1px solid rgba(212,168,83,.4); background:rgba(255,255,255,.85);
+    font-family:'Noto Serif KR',serif; font-size:12px; color:#3A2A1A;
+    outline:none; -webkit-appearance:none; min-width:0;
+    letter-spacing:.5px;
+  }
+  .chat-msg-input {
+    flex:1; min-width:0;
+    padding:11px 16px; border-radius:24px;
+    border:1px solid rgba(212,168,83,.4); background:rgba(255,255,255,.85);
     font-family:'Noto Serif KR',serif; font-size:13px; color:#3A2A1A;
-    outline:none; resize:none; -webkit-appearance:none;
+    outline:none; -webkit-appearance:none;
   }
-  .gb-input:focus,.gb-textarea:focus { border-color:rgba(212,168,83,.6); background:rgba(255,255,255,.75); }
-  .gb-input::placeholder,.gb-textarea::placeholder { color:rgba(58,42,26,.3); }
-  .gb-submit {
-    padding:15px; border-radius:50px; border:none;
+  .chat-name-input:focus, .chat-msg-input:focus {
+    border-color:var(--gold); background:#fff;
+  }
+  .chat-name-input::placeholder, .chat-msg-input::placeholder {
+    color:rgba(58,42,26,.4);
+  }
+  .chat-send {
+    flex:0 0 42px; width:42px; height:42px;
+    border-radius:50%; border:none;
     background:linear-gradient(135deg, var(--coral), var(--gold));
-    color:#fff; font-family:'Noto Serif KR',serif; font-size:13px;
-    letter-spacing:2px; cursor:pointer; opacity:1; transition:opacity .2s;
-    box-shadow:0 4px 16px rgba(212,168,83,.35);
+    color:#fff; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 14px rgba(212,168,83,.45);
+    transition:opacity .2s, transform .1s;
+    padding:0;
   }
-  .gb-submit:hover { opacity:.88; }
-  .gb-submit:disabled { opacity:.4; cursor:not-allowed; }
+  .chat-send:hover { opacity:.92; }
+  .chat-send:active { transform:scale(.92); }
+  .chat-send:disabled { opacity:.4; cursor:not-allowed; }
 
   /* Lightbox */
   .lightbox {
@@ -498,7 +671,16 @@
   <div class="gallery-wrap">
     <div class="section-label">Our Log</div>
     <h2>우리가 함께한 날들</h2>
-    <div class="gallery-grid" id="galleryGrid"></div>
+    <div class="gallery-carousel" id="galleryCarousel">
+      <div class="gallery-track" id="galleryTrack"></div>
+      <button class="gallery-arrow gallery-prev" id="galleryPrev" aria-label="이전 사진">‹</button>
+      <button class="gallery-arrow gallery-next" id="galleryNext" aria-label="다음 사진">›</button>
+    </div>
+    <div class="gallery-meta">
+      <span class="gallery-counter" id="galleryCounter"></span>
+      <div class="gallery-progress"><div class="gallery-progress-fill" id="galleryProgressFill"></div></div>
+      <span class="gallery-hint">tap to zoom</span>
+    </div>
   </div>
 </div>
 
@@ -536,27 +718,47 @@
   <div class="lb-media-wrap" id="lbMediaWrap"></div>
 </div>
 
-<div class="scroll-canvas"></div>
-
-<!-- 방명록: scroll-canvas 이후에 위치 → 클로징 섹션 다음에 자연스럽게 등장 -->
-<section class="guestbook-section" id="guestbookSection">
-  <div class="gb-inner">
-    <div class="gb-header">
-      <div class="gb-deco"></div>
-      <div class="gb-label">Messages</div>
-      <h2 class="gb-title">축하 메시지</h2>
-      <p class="gb-subtitle">두 사람의 새로운 다이빙을<br>응원해 주세요</p>
+<!-- 방명록: 청첩장+다이빙마스크 모티프 패널 (closing 다음 구간, 같은 배경 위) -->
+<div class="content-panel" id="panelGuestbook">
+  <div class="chat-window">
+    <div class="chat-header">
+      <svg class="chat-mask-icon" viewBox="0 0 60 36" fill="none" aria-hidden="true">
+        <!-- strap 곡선 -->
+        <path d="M2 11 Q14 6 30 6 Q46 6 58 11" stroke="rgba(212,168,83,.6)" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+        <!-- 마스크 외곽 -->
+        <path d="M7 10 Q7 6 11 6 L49 6 Q53 6 53 10 L53 22 Q53 28 47 28 L41 28 Q35 28 33 22 L27 22 Q25 28 19 28 L13 28 Q7 28 7 22 Z"
+              stroke="rgba(212,168,83,.85)" stroke-width="1.3" fill="rgba(255,255,255,.32)"/>
+        <!-- 좌측 lens -->
+        <ellipse cx="18" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
+        <!-- 우측 lens -->
+        <ellipse cx="42" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
+        <!-- lens highlight -->
+        <ellipse cx="15.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
+        <ellipse cx="39.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
+      </svg>
+      <div class="chat-eyebrow">Message Log</div>
+      <div class="chat-title">축하의 한 마디</div>
+      <div class="chat-sub">영진 ♥ 수연 · 2026.08.01</div>
+      <div class="chat-deco-line"></div>
     </div>
-    <div class="gb-messages" id="gbMessages">
-      <p class="gb-loading">불러오는 중...</p>
+    <div class="chat-viewport">
+      <div class="chat-messages" id="chatMessages">
+        <p class="chat-loading">메시지를 불러오는 중...</p>
+      </div>
     </div>
-    <form class="gb-form" id="gbForm">
-      <input class="gb-input" id="gbName" type="text" placeholder="이름" maxlength="50" autocomplete="off">
-      <textarea class="gb-textarea" id="gbMessage" placeholder="축하 메시지를 남겨주세요 (최대 500자)" maxlength="500" rows="4"></textarea>
-      <button class="gb-submit" id="gbSubmit" type="submit">남기기</button>
-    </form>
   </div>
-</section>
+  <form class="chat-input-bar" id="chatForm" autocomplete="off">
+    <input class="chat-name-input" id="chatName" type="text" placeholder="이름" maxlength="20">
+    <input class="chat-msg-input" id="chatMessage" type="text" placeholder="축하의 한 마디를 보내주세요" maxlength="500">
+    <button class="chat-send" id="chatSend" type="submit" aria-label="전송">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+        <path d="M3 12L21 4L13 21L11 13L3 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<div class="scroll-canvas"></div>
 
 <script>
 // ===== 갤러리 =====
@@ -574,37 +776,133 @@ async function fetchGalleryItems() {
     .filter(f => f.name && !f.name.startsWith('.') && f.name !== '.emptyFolderPlaceholder')
     .map(f => {
       const ext = f.name.split('.').pop().toLowerCase();
+      const isVideo = VIDEO_EXTS.has(ext);
+      const baseSrc = `${window.SUPABASE_URL}/storage/v1/object/public/gallery/${encodeURIComponent(f.name)}`;
       return {
-        type: VIDEO_EXTS.has(ext) ? 'video' : 'image',
-        src: `${window.SUPABASE_URL}/storage/v1/object/public/gallery/${encodeURIComponent(f.name)}`,
+        type: isVideo ? 'video' : 'image',
+        // 비디오는 #t=0.1 fragment로 첫 프레임을 썸네일처럼 보이게
+        src: baseSrc,
+        thumbSrc: isVideo ? `${baseSrc}#t=0.1` : baseSrc,
         poster: '',
         caption: '',
       };
     });
 }
 
-// ===== 갤러리 렌더링 =====
+// ===== 갤러리 캐러셀 (2x2 그리드 페이지) =====
+const GALLERY_PER_PAGE = 4;
+let CAROUSEL_INDEX = 0;
+
+function totalPages() {
+  return Math.max(1, Math.ceil(GALLERY_ITEMS.length / GALLERY_PER_PAGE));
+}
+
 function renderGallery() {
-  const grid = document.getElementById('galleryGrid');
-  if (!grid) return;
-  grid.innerHTML = '';
+  const track = document.getElementById('galleryTrack');
+  if (!track) return;
+
   if (GALLERY_ITEMS.length === 0) {
-    grid.innerHTML = '<p style="color:rgba(255,255,255,.3);font-size:12px;grid-column:1/-1;text-align:center;padding:40px 0">사진을 준비 중이에요</p>';
+    track.innerHTML = '<div class="gallery-slide is-empty"><p class="gallery-empty">사진을 준비 중이에요</p></div>';
+    CAROUSEL_INDEX = 0;
+    updateCarousel();
     return;
   }
-  const ph = `<svg viewBox="0 0 40 40" fill="none"><rect x="4" y="8" width="32" height="24" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/><circle cx="14" cy="18" r="4" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/><path d="M4 26l8-6 7 5 5-4 12 9" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
-  GALLERY_ITEMS.forEach((item, i) => {
-    const div = document.createElement('div');
-    div.className = 'gallery-item';
-    if (!item.src) {
-      div.innerHTML = `<div class="ph">${ph}<span>${item.caption || ''}</span></div>`;
-    } else if (item.type === 'video') {
-      div.innerHTML = `<video src="${item.src}" poster="${item.poster || ''}" preload="none" muted playsinline></video><div class="play-btn">▶</div>`;
-    } else {
-      div.innerHTML = `<img src="${item.src}" alt="${item.caption || ''}" loading="lazy">`;
+
+  const pages = [];
+  for (let i = 0; i < GALLERY_ITEMS.length; i += GALLERY_PER_PAGE) {
+    pages.push(GALLERY_ITEMS.slice(i, i + GALLERY_PER_PAGE));
+  }
+
+  track.innerHTML = pages.map((page, pageI) => {
+    const tiles = [];
+    for (let j = 0; j < GALLERY_PER_PAGE; j++) {
+      const item = page[j];
+      if (!item) {
+        tiles.push('<div class="gallery-tile empty"></div>');
+        continue;
+      }
+      const globalI = pageI * GALLERY_PER_PAGE + j;
+      if (item.type === 'video') {
+        tiles.push(`<div class="gallery-tile" data-i="${globalI}"><video src="${item.thumbSrc}" preload="metadata" muted playsinline></video><div class="play-btn">▶</div></div>`);
+      } else {
+        tiles.push(`<div class="gallery-tile" data-i="${globalI}"><img src="${item.src}" alt="${item.caption||''}" loading="lazy"></div>`);
+      }
     }
-    if (item.src) div.addEventListener('click', () => openLightbox(i));
-    grid.appendChild(div);
+    return `<div class="gallery-slide">${tiles.join('')}</div>`;
+  }).join('');
+
+  // 타일 클릭 → 라이트박스
+  track.querySelectorAll('.gallery-tile[data-i]').forEach(tile => {
+    tile.addEventListener('click', () => {
+      const i = +tile.dataset.i;
+      if (!Number.isNaN(i)) openLightbox(i);
+    });
+  });
+
+  CAROUSEL_INDEX = 0;
+  updateCarousel();
+}
+
+function goToSlide(i) {
+  if (!GALLERY_ITEMS.length) {
+    CAROUSEL_INDEX = 0;
+    updateCarousel();
+    return;
+  }
+  const pages = totalPages();
+  CAROUSEL_INDEX = Math.max(0, Math.min(pages - 1, i));
+  updateCarousel();
+}
+
+function updateCarousel() {
+  const track        = document.getElementById('galleryTrack');
+  const counter      = document.getElementById('galleryCounter');
+  const progressFill = document.getElementById('galleryProgressFill');
+  const prevBtn      = document.getElementById('galleryPrev');
+  const nextBtn      = document.getElementById('galleryNext');
+  if (!track) return;
+  const pages = totalPages();
+  track.style.transform = `translateX(-${CAROUSEL_INDEX * 100}%)`;
+  if (counter) counter.textContent = GALLERY_ITEMS.length
+    ? `${String(CAROUSEL_INDEX+1).padStart(2,'0')} / ${String(pages).padStart(2,'0')}`
+    : '';
+  if (progressFill) progressFill.style.width = GALLERY_ITEMS.length
+    ? `${((CAROUSEL_INDEX + 1) / pages) * 100}%`
+    : '0%';
+  if (prevBtn) prevBtn.disabled = CAROUSEL_INDEX === 0;
+  if (nextBtn) nextBtn.disabled = CAROUSEL_INDEX >= pages - 1;
+}
+
+function setupCarouselControls() {
+  const prevBtn  = document.getElementById('galleryPrev');
+  const nextBtn  = document.getElementById('galleryNext');
+  const carousel = document.getElementById('galleryCarousel');
+  if (!prevBtn || !nextBtn || !carousel) return;
+  prevBtn.addEventListener('click', e => { e.stopPropagation(); goToSlide(CAROUSEL_INDEX - 1); });
+  nextBtn.addEventListener('click', e => { e.stopPropagation(); goToSlide(CAROUSEL_INDEX + 1); });
+
+  // 터치 스와이프 (좌우만 — 세로는 페이지 스크롤로 흘려보냄)
+  let startX = 0, startY = 0, dragging = false, axis = null;
+  carousel.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    dragging = true; axis = null;
+  }, { passive: true });
+  carousel.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (!axis && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+      axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    }
+    if (axis === 'x') e.preventDefault();
+  }, { passive: false });
+  carousel.addEventListener('touchend', e => {
+    if (!dragging) return;
+    dragging = false;
+    if (axis !== 'x') return;
+    const dx = (e.changedTouches[0]?.clientX ?? startX) - startX;
+    if (Math.abs(dx) > 50) goToSlide(CAROUSEL_INDEX + (dx < 0 ? 1 : -1));
   });
 }
 
@@ -647,74 +945,117 @@ function showLbItem() {
   document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${items.length}`;
 }
 
-// ===== 방명록 =====
+// ===== 방명록 (채팅 스타일) =====
 function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function formatDate(iso) {
+function formatChatTime(iso) {
   const d = new Date(iso);
-  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  if (sameDay) return `${hh}:${mm}`;
+  const m  = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${m}.${dd} ${hh}:${mm}`;
 }
 
 async function loadGuestbook() {
-  const el = document.getElementById('gbMessages');
+  const el = document.getElementById('chatMessages');
   if (!el) return;
-  if (!db) { el.innerHTML = '<p class="gb-empty">Supabase 연결이 필요합니다.</p>'; return; }
+  if (!db) {
+    el.innerHTML = '<p class="chat-empty">Supabase 연결이 필요합니다.</p>';
+    return;
+  }
   const { data, error } = await db
     .from('guestbook')
     .select('name,message,created_at')
-    .order('created_at', { ascending: false })
-    .limit(200);
-  if (error) { el.innerHTML = '<p class="gb-empty">메시지를 불러올 수 없습니다.</p>'; return; }
-  if (!data || data.length === 0) {
-    el.innerHTML = '<p class="gb-empty">아직 메시지가 없어요<br>첫 번째 축하를 남겨주세요 ✨</p>';
+    .order('created_at', { ascending: true })
+    .limit(500);
+  if (error) {
+    el.innerHTML = '<p class="chat-empty">메시지를 불러올 수 없습니다.</p>';
     return;
   }
-  el.innerHTML = data.map(row => `
-    <div class="gb-card">
-      <div class="gb-card-top">
-        <span class="gb-card-name">${escapeHtml(row.name)}</span>
-        <span class="gb-card-date">${formatDate(row.created_at)}</span>
+  if (!data || data.length === 0) {
+    el.innerHTML = '<p class="chat-empty">아직 메시지가 없어요<br>첫 번째 축하를 남겨주세요 ✨</p>';
+    return;
+  }
+  const myName = localStorage.getItem('gb_name');
+  el.innerHTML = data.map(row => {
+    const me = myName && row.name === myName;
+    return `
+      <div class="msg${me?' me':''}">
+        <div class="msg-top">
+          <span class="msg-name">${escapeHtml(row.name)}</span>
+          <span class="msg-time">${formatChatTime(row.created_at)}</span>
+        </div>
+        <p class="msg-bubble">${escapeHtml(row.message)}</p>
       </div>
-      <p class="gb-card-msg">${escapeHtml(row.message)}</p>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+  // 가장 최근 메시지가 보이도록 스크롤
+  el.scrollTop = el.scrollHeight;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   // 갤러리: Supabase에서 fetch 후 렌더링
   fetchGalleryItems().then(items => { GALLERY_ITEMS = items; renderGallery(); });
+  setupCarouselControls();
 
   // 방명록 로드
   loadGuestbook();
 
-  // 방명록 폼 제출
-  const gbForm = document.getElementById('gbForm');
-  if (gbForm) {
-    gbForm.addEventListener('submit', async e => {
+  // 저장된 이름 불러오기 (이미 적은 사람은 이름 칸 숨김)
+  const chatNameEl = document.getElementById('chatName');
+  const savedName  = localStorage.getItem('gb_name');
+  if (chatNameEl && savedName) {
+    chatNameEl.value = savedName;
+    chatNameEl.style.display = 'none';
+  }
+
+  // 채팅창 boundary에서 페이지 스크롤로 전파 (위로 다시 올라갈 수 있게)
+  const chatMessagesEl = document.getElementById('chatMessages');
+  if (chatMessagesEl) {
+    chatMessagesEl.addEventListener('wheel', e => {
+      const atTop    = chatMessagesEl.scrollTop <= 0;
+      const atBottom = chatMessagesEl.scrollTop + chatMessagesEl.clientHeight >= chatMessagesEl.scrollHeight - 1;
+      if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
+        window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+      }
+    }, { passive: true });
+  }
+
+  // 채팅 폼 제출
+  const chatForm = document.getElementById('chatForm');
+  if (chatForm) {
+    chatForm.addEventListener('submit', async e => {
       e.preventDefault();
-      const nameEl = document.getElementById('gbName');
-      const msgEl  = document.getElementById('gbMessage');
-      const btn    = document.getElementById('gbSubmit');
-      const name    = nameEl.value.trim();
+      const nameEl = document.getElementById('chatName');
+      const msgEl  = document.getElementById('chatMessage');
+      const btn    = document.getElementById('chatSend');
+      const name    = (nameEl.value || localStorage.getItem('gb_name') || '').trim();
       const message = msgEl.value.trim();
-      if (!name)    { nameEl.focus(); return; }
-      if (!message) { msgEl.focus();  return; }
+      if (!db) {
+        alert('Supabase 연결이 필요합니다.');
+        return;
+      }
+      if (!name)    { nameEl.style.display = ''; nameEl.focus(); return; }
+      if (!message) { msgEl.focus(); return; }
       btn.disabled = true;
-      btn.textContent = '저장 중...';
       try {
         const { error } = await db.from('guestbook').insert({ name, message });
         if (error) throw error;
-        nameEl.value = '';
-        msgEl.value  = '';
+        localStorage.setItem('gb_name', name);
+        nameEl.value = name;
+        nameEl.style.display = 'none';
+        msgEl.value = '';
         await loadGuestbook();
-        document.getElementById('gbMessages').scrollIntoView({ behavior: 'smooth' });
       } catch (err) {
         console.error('guestbook submit:', err);
         alert('메시지 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.');
       } finally {
         btn.disabled = false;
-        btn.textContent = '남기기';
       }
     });
   }
@@ -757,7 +1098,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const bgS=$('bgSurface'),bgSh=$('bgShallow'),bgD=$('bgDeep'),bgC=$('bgCoral'),bgR=$('bgRise');
   const elSun=$('elSun'),elWater=$('elWater'),elRays=$('elRays'),elBub=$('elBub'),elPtc=$('elPtc'),elCoral=$('elCoral');
   const dL=$('duckL'),dR=$('duckR');
-  const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing');
+  const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing'),pGuestbook=$('panelGuestbook');
   const sHint=$('scrollHint'),sProgress=$('scrollProgress');
 
   // ===== DUCK KEYFRAMES =====
@@ -880,7 +1221,8 @@ document.addEventListener('DOMContentLoaded', () => {
     pDive.classList.toggle('active', t>=.18&&t<.33);
     pInvite.classList.toggle('active', t>=.37&&t<.55);
     pGallery.classList.toggle('active', t>=.58&&t<.73);
-    pClosing.classList.toggle('active', t>=.78);
+    pClosing.classList.toggle('active', t>=.78&&t<.88);
+    pGuestbook.classList.toggle('active', t>=.88);
     sHint.classList.toggle('hidden', t >= .08);
 
     // === DUCKS ===
@@ -910,9 +1252,8 @@ document.addEventListener('DOMContentLoaded', () => {
     dL.style.filter = glow;
     dR.style.filter = glow;
 
-    // 방명록 구간 진입 시 오리 숨기기
-    const gbSection = document.getElementById('guestbookSection');
-    const inGuestbook = gbSection && window.scrollY + window.innerHeight > gbSection.offsetTop + 80;
+    // 방명록 패널 진입 시 오리 숨기기
+    const inGuestbook = pGuestbook.classList.contains('active');
     dL.style.opacity = inGuestbook ? '0' : '1';
     dR.style.opacity = inGuestbook ? '0' : '1';
 

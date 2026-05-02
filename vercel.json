@@ -1,5 +1,5 @@
 {
-  "buildCommand": "printf \"window.SUPABASE_URL='%s';window.SUPABASE_ANON_KEY='%s';\" \"$SUPABASE_URL\" \"$SUPABASE_ANON_KEY\" > public/config.js",
+  "buildCommand": "if [ -n \"$SUPABASE_URL\" ] && [ -n \"$SUPABASE_ANON_KEY\" ]; then printf \"window.SUPABASE_URL='%s';window.SUPABASE_ANON_KEY='%s';\" \"$SUPABASE_URL\" \"$SUPABASE_ANON_KEY\" > public/config.js; else echo 'Using committed public/config.js'; fi",
   "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
