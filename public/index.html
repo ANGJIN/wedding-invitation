@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>영진 ♥ 수연 결혼식에 초대합니다</title>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+  window.db = (window.SUPABASE_URL && window.SUPABASE_URL !== 'https://your-project.supabase.co')
+    ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY)
+    : null;
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -164,6 +171,7 @@
   }
   .scroll-hint .arrow { display:block; font-size:18px; margin-top:6px; animation:ab 1.5s ease-in-out infinite }
   @keyframes hp { 0%,100%{opacity:.4} 50%{opacity:1} }
+  .scroll-hint.hidden { animation:none; opacity:0 !important; pointer-events:none; }
   @keyframes ab { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
 
   /* Dive */
@@ -178,34 +186,132 @@
   .invitation-card {
     background:rgba(255,255,255,.06); backdrop-filter:blur(24px);
     border:1px solid rgba(255,255,255,.12); border-radius:24px;
-    padding:44px 28px; max-width:340px; width:100%; text-align:center;
+    padding:clamp(24px,4vh,40px) 28px; max-width:340px; width:100%; text-align:center;
     box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.1);
   }
-  .invitation-card .deco-line { width:40px; height:1px; background:var(--gold); margin:0 auto 20px; opacity:.6 }
-  .invitation-card .label { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:5px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:18px }
+  .invitation-card .deco-line { width:40px; height:1px; background:var(--gold); margin:0 auto clamp(12px,2vh,20px); opacity:.6 }
+  .invitation-card .label { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:5px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:clamp(10px,1.5vh,18px) }
   .invitation-card .couple-names { font-size:24px; font-weight:300; color:#fff; letter-spacing:3px; margin-bottom:6px }
   .invitation-card .amp { font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--coral); margin:0 6px; font-size:20px }
-  .invitation-card .parents { font-size:12px; color:rgba(255,255,255,.4); font-weight:300; margin-bottom:28px; line-height:1.8 }
-  .invitation-card .date-block { margin:20px 0; padding:20px 0; border-top:1px solid rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.08) }
-  .invitation-card .year { font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:6px; color:rgba(255,255,255,.4); margin-bottom:6px }
-  .invitation-card .date { font-family:'Cormorant Garamond',serif; font-size:46px; font-weight:300; color:#fff; letter-spacing:2px }
-  .invitation-card .day-time { font-size:13px; color:rgba(255,255,255,.6); margin-top:6px; letter-spacing:2px }
-  .invitation-card .venue { margin-top:20px; font-size:13px; color:rgba(255,255,255,.7); line-height:2; font-weight:300 }
+  .invitation-card .parents { font-size:12px; color:rgba(255,255,255,.4); font-weight:300; margin-bottom:clamp(14px,2vh,24px); line-height:1.8 }
+  .invitation-card .date-block { margin:clamp(10px,1.5vh,18px) 0; padding:clamp(12px,1.8vh,20px) 0; border-top:1px solid rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.08) }
+  .invitation-card .year { font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:6px; color:rgba(255,255,255,.4); margin-bottom:4px }
+  .invitation-card .date { font-family:'Cormorant Garamond',serif; font-size:clamp(34px,6vh,46px); font-weight:300; color:#fff; letter-spacing:2px }
+  .invitation-card .day-time { font-size:13px; color:rgba(255,255,255,.6); margin-top:4px; letter-spacing:2px }
+  .invitation-card .venue { margin-top:clamp(12px,1.8vh,20px); font-size:13px; color:rgba(255,255,255,.7); line-height:1.8; font-weight:300 }
   .invitation-card .venue strong { color:#fff; font-weight:400 }
+  .venue-btns { display:flex; gap:8px; margin-top:16px; justify-content:center }
+  .venue-btn {
+    flex:1; padding:10px 0; border-radius:50px; font-size:12px; letter-spacing:1px;
+    font-family:'Noto Serif KR',serif; cursor:pointer; text-decoration:none;
+    border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.08);
+    color:rgba(255,255,255,.8); transition:background .2s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .venue-btn:hover { background:rgba(255,255,255,.16); }
+  .venue-btn-map { border-color:rgba(212,168,83,.5); color:var(--gold); }
 
   /* Gallery */
   .gallery-wrap { max-width:340px; width:100%; text-align:center }
   .gallery-wrap .section-label { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:5px; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:14px }
   .gallery-wrap h2 { font-size:22px; font-weight:300; color:#fff; margin-bottom:28px; letter-spacing:2px }
-  .gallery-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px }
+  .gallery-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px }
   .gallery-item {
-    aspect-ratio:3/4; background:rgba(255,255,255,.08); border-radius:14px;
-    border:1px solid rgba(255,255,255,.1); display:flex; flex-direction:column;
-    align-items:center; justify-content:center; position:relative; overflow:hidden;
+    aspect-ratio:1; background:rgba(255,255,255,.08);
+    position:relative; overflow:hidden; cursor:pointer;
   }
-  .gallery-item svg { width:40px; height:40px; opacity:.5 }
-  .gallery-item .placeholder-text { position:absolute; bottom:10px; font-size:10px; color:rgba(255,255,255,.3); letter-spacing:1px }
-  .gallery-item:first-child { grid-column:1/-1; aspect-ratio:16/9 }
+  .gallery-item img, .gallery-item video {
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .gallery-item .play-btn {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:36px; height:36px; background:rgba(0,0,0,.55); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; color:#fff; pointer-events:none;
+  }
+  .gallery-item .ph {
+    width:100%; height:100%; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:8px;
+  }
+  .gallery-item .ph svg { width:32px; height:32px; opacity:.4 }
+  .gallery-item .ph span { font-size:9px; color:rgba(255,255,255,.3); letter-spacing:1px }
+
+  /* Guestbook */
+  .guestbook-section {
+    position:relative; z-index:20;
+    background:linear-gradient(180deg, #FFF5E6 0%, #FFE8CC 40%, #FDDBB0 100%);
+    min-height:100vh; padding:64px 24px 80px;
+  }
+  .gb-inner { max-width:380px; margin:0 auto; }
+  .gb-header { text-align:center; margin-bottom:36px; }
+  .gb-deco { width:40px; height:1px; background:var(--gold); margin:0 auto 20px; opacity:.5; }
+  .gb-label {
+    font-family:'Cormorant Garamond',serif; font-size:11px;
+    letter-spacing:5px; text-transform:uppercase;
+    color:rgba(90,62,40,.45); margin-bottom:14px;
+  }
+  .gb-title { font-size:22px; font-weight:300; color:#3A2A1A; letter-spacing:2px; margin-bottom:10px; }
+  .gb-subtitle { font-size:13px; color:rgba(58,42,26,.45); line-height:2; font-weight:300; }
+  .gb-messages { margin-bottom:36px; display:flex; flex-direction:column; gap:12px; }
+  .gb-loading,.gb-empty {
+    font-size:13px; color:rgba(58,42,26,.4); text-align:center;
+    padding:32px 0; line-height:2.2; font-weight:300;
+  }
+  .gb-card {
+    background:rgba(255,255,255,.55); backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.7); border-radius:18px;
+    padding:18px 20px; box-shadow:0 4px 20px rgba(90,62,40,.08);
+  }
+  .gb-card-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .gb-card-name { font-size:13px; font-weight:400; color:#3A2A1A; letter-spacing:.5px; }
+  .gb-card-date { font-size:10px; color:rgba(58,42,26,.35); letter-spacing:.5px; }
+  .gb-card-msg { font-size:13px; color:rgba(58,42,26,.65); line-height:1.9; white-space:pre-wrap; word-break:break-word; font-weight:300; }
+  .gb-form { display:flex; flex-direction:column; gap:10px; }
+  .gb-input,.gb-textarea {
+    width:100%; padding:14px 16px; border-radius:14px;
+    border:1px solid rgba(90,62,40,.18);
+    background:rgba(255,255,255,.55); backdrop-filter:blur(16px);
+    font-family:'Noto Serif KR',serif; font-size:13px; color:#3A2A1A;
+    outline:none; resize:none; -webkit-appearance:none;
+  }
+  .gb-input:focus,.gb-textarea:focus { border-color:rgba(212,168,83,.6); background:rgba(255,255,255,.75); }
+  .gb-input::placeholder,.gb-textarea::placeholder { color:rgba(58,42,26,.3); }
+  .gb-submit {
+    padding:15px; border-radius:50px; border:none;
+    background:linear-gradient(135deg, var(--coral), var(--gold));
+    color:#fff; font-family:'Noto Serif KR',serif; font-size:13px;
+    letter-spacing:2px; cursor:pointer; opacity:1; transition:opacity .2s;
+    box-shadow:0 4px 16px rgba(212,168,83,.35);
+  }
+  .gb-submit:hover { opacity:.88; }
+  .gb-submit:disabled { opacity:.4; cursor:not-allowed; }
+
+  /* Lightbox */
+  .lightbox {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.96); flex-direction:column;
+    align-items:center; justify-content:center;
+  }
+  .lightbox.open { display:flex; }
+  .lb-counter {
+    position:absolute; top:18px; left:50%; transform:translateX(-50%);
+    font-size:12px; color:rgba(255,255,255,.5); letter-spacing:2px;
+  }
+  .lb-close {
+    position:absolute; top:14px; right:18px;
+    font-size:28px; color:rgba(255,255,255,.7); background:none; border:none;
+    cursor:pointer; line-height:1; padding:4px;
+  }
+  .lb-prev, .lb-next {
+    position:absolute; top:50%; transform:translateY(-50%);
+    font-size:32px; color:rgba(255,255,255,.6); background:none; border:none;
+    cursor:pointer; padding:12px; line-height:1;
+  }
+  .lb-prev { left:4px; }
+  .lb-next { right:4px; }
+  .lb-media-wrap { max-width:100vw; max-height:85vh; display:flex; align-items:center; justify-content:center; }
+  .lb-media-wrap img { max-width:100vw; max-height:85vh; object-fit:contain; }
+  .lb-media-wrap video { max-width:100vw; max-height:85vh; outline:none; }
 
   /* Closing */
   .closing-wrap { max-width:340px; text-align:center }
@@ -355,13 +461,17 @@
 </div>
 
 <div class="content-panel panel-dive" id="panelDive">
-  <h2>Dive into our love story</h2>
+  <h2>Buddy Check ✓</h2>
   <p>
-    물 위에서 만난 두 사람이<br>
-    함께 깊은 바다 속으로<br>
-    다이빙하듯<br>
-    인생이라는 바다를<br>
-    함께 헤엄쳐 가려 합니다
+    다이빙엔 규칙이 있어요<br>
+    절대 혼자 들어가지 않는다는 것<br>
+    <br>
+    서로의 손을 잡고<br>
+    같이 숨을 고른 다음<br>
+    함께 뛰어들었을 때<br>
+    비로소 알았어요<br>
+    <br>
+    이 사람이 내 버디구나
   </p>
 </div>
 
@@ -370,63 +480,278 @@
     <div class="deco-line"></div>
     <div class="label">Wedding Invitation</div>
     <div class="couple-names">김영진 <span class="amp">&</span> 박수연</div>
-    <div class="parents">김OO · 이OO의 장남 영진<br>박OO · 김OO의 장녀 수연</div>
+    <div class="parents">김정국 · 허재경의 아들 영진<br>박홍근 · 한현순의 딸 수연</div>
     <div class="date-block">
       <div class="year">2 0 2 6</div>
       <div class="date">08.01</div>
-      <div class="day-time">토요일 오후 2시</div>
+      <div class="day-time">토요일 오후 1시 30분</div>
     </div>
-    <div class="venue"><strong>OO웨딩홀</strong><br>서울특별시 OO구 OO로 000</div>
+    <div class="venue"><strong>케이터틀</strong><br>서울 마포구 백범로 23</div>
+    <div class="venue-btns">
+      <button class="venue-btn" id="btnCopyAddr">주소 복사</button>
+      <a class="venue-btn venue-btn-map" href="https://naver.me/xQe2Zb4i" target="_blank" rel="noopener">길찾기</a>
+    </div>
   </div>
 </div>
 
 <div class="content-panel" id="panelGallery" style="justify-content:center">
   <div class="gallery-wrap">
-    <div class="section-label">Our Moments</div>
-    <h2>우리의 이야기</h2>
-    <div class="gallery-grid">
-      <div class="gallery-item">
-        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="14" r="10" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/><path d="M12,22 Q20,34 28,22" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/></svg>
-        <span class="placeholder-text">함께한 다이빙</span>
-      </div>
-      <div class="gallery-item">
-        <svg width="40" height="40" viewBox="0 0 40 40"><path d="M20,5 Q35,15 20,35 Q5,15 20,5Z" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/></svg>
-        <span class="placeholder-text">바다 속 추억</span>
-      </div>
-      <div class="gallery-item">
-        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/><path d="M14,18 L26,18 M18,14 L22,14 M16,22 L24,22" stroke="rgba(255,255,255,.2)" stroke-width="1"/></svg>
-        <span class="placeholder-text">함께한 여행</span>
-      </div>
-    </div>
+    <div class="section-label">Our Log</div>
+    <h2>우리가 함께한 날들</h2>
+    <div class="gallery-grid" id="galleryGrid"></div>
   </div>
 </div>
 
 <div class="content-panel" id="panelClosing" style="justify-content:center">
   <div class="closing-wrap">
     <h2>
-      깊은 바다에서 다시<br>
-      수면 위로 올라오듯<br><br>
-      저희 두 사람<br>
-      새로운 시작을 함께 합니다
+      어떤 바다도<br>
+      버디가 있으면 두렵지 않았어요<br><br>
+      이제 인생이라는<br>
+      가장 깊고 긴 다이빙을<br>
+      함께 시작합니다
     </h2>
     <p>
-      바다처럼 깊고 넓은 사랑으로<br>
+      서로의 버디가 되어<br>
+      깊은 곳도, 거센 파도도<br>
       함께 헤엄쳐 나가겠습니다<br><br>
-      귀한 걸음으로<br>
-      축복해 주시면 감사하겠습니다
+      귀한 걸음으로 축복해 주시면<br>
+      더없이 감사하겠습니다
     </p>
     <div class="date-badge">2026. 08. 01 SAT</div>
   </div>
 </div>
 
 <div class="scroll-hint" id="scrollHint">
-  <span>함께 바다 속으로</span>
+  <span>같이 뛰어들어요</span>
   <span class="arrow">↓</span>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <span class="lb-counter" id="lbCounter">1 / 1</span>
+  <button class="lb-close" id="lbClose">×</button>
+  <button class="lb-prev" id="lbPrev">‹</button>
+  <button class="lb-next" id="lbNext">›</button>
+  <div class="lb-media-wrap" id="lbMediaWrap"></div>
 </div>
 
 <div class="scroll-canvas"></div>
 
+<!-- 방명록: scroll-canvas 이후에 위치 → 클로징 섹션 다음에 자연스럽게 등장 -->
+<section class="guestbook-section" id="guestbookSection">
+  <div class="gb-inner">
+    <div class="gb-header">
+      <div class="gb-deco"></div>
+      <div class="gb-label">Messages</div>
+      <h2 class="gb-title">축하 메시지</h2>
+      <p class="gb-subtitle">두 사람의 새로운 다이빙을<br>응원해 주세요</p>
+    </div>
+    <div class="gb-messages" id="gbMessages">
+      <p class="gb-loading">불러오는 중...</p>
+    </div>
+    <form class="gb-form" id="gbForm">
+      <input class="gb-input" id="gbName" type="text" placeholder="이름" maxlength="50" autocomplete="off">
+      <textarea class="gb-textarea" id="gbMessage" placeholder="축하 메시지를 남겨주세요 (최대 500자)" maxlength="500" rows="4"></textarea>
+      <button class="gb-submit" id="gbSubmit" type="submit">남기기</button>
+    </form>
+  </div>
+</section>
+
 <script>
+// ===== 갤러리 =====
+let GALLERY_ITEMS = [];
+
+const VIDEO_EXTS = new Set(['mp4','mov','webm','avi','mkv','m4v']);
+
+async function fetchGalleryItems() {
+  if (!db) return [];
+  const { data, error } = await db.storage
+    .from('gallery')
+    .list('', { limit: 500, sortBy: { column: 'created_at', order: 'asc' } });
+  if (error) { console.error('gallery fetch:', error); return []; }
+  return (data || [])
+    .filter(f => f.name && !f.name.startsWith('.') && f.name !== '.emptyFolderPlaceholder')
+    .map(f => {
+      const ext = f.name.split('.').pop().toLowerCase();
+      return {
+        type: VIDEO_EXTS.has(ext) ? 'video' : 'image',
+        src: `${window.SUPABASE_URL}/storage/v1/object/public/gallery/${encodeURIComponent(f.name)}`,
+        poster: '',
+        caption: '',
+      };
+    });
+}
+
+// ===== 갤러리 렌더링 =====
+function renderGallery() {
+  const grid = document.getElementById('galleryGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  if (GALLERY_ITEMS.length === 0) {
+    grid.innerHTML = '<p style="color:rgba(255,255,255,.3);font-size:12px;grid-column:1/-1;text-align:center;padding:40px 0">사진을 준비 중이에요</p>';
+    return;
+  }
+  const ph = `<svg viewBox="0 0 40 40" fill="none"><rect x="4" y="8" width="32" height="24" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/><circle cx="14" cy="18" r="4" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/><path d="M4 26l8-6 7 5 5-4 12 9" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+  GALLERY_ITEMS.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'gallery-item';
+    if (!item.src) {
+      div.innerHTML = `<div class="ph">${ph}<span>${item.caption || ''}</span></div>`;
+    } else if (item.type === 'video') {
+      div.innerHTML = `<video src="${item.src}" poster="${item.poster || ''}" preload="none" muted playsinline></video><div class="play-btn">▶</div>`;
+    } else {
+      div.innerHTML = `<img src="${item.src}" alt="${item.caption || ''}" loading="lazy">`;
+    }
+    if (item.src) div.addEventListener('click', () => openLightbox(i));
+    grid.appendChild(div);
+  });
+}
+
+// ===== 라이트박스 =====
+let lbIndex = 0;
+const lbItems = () => GALLERY_ITEMS.filter(it => it.src);
+const lbAll   = () => GALLERY_ITEMS;
+
+function openLightbox(index) {
+  lbIndex = index;
+  showLbItem();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+  const wrap = document.getElementById('lbMediaWrap');
+  const vid = wrap.querySelector('video');
+  if (vid) vid.pause();
+  wrap.innerHTML = '';
+}
+
+function showLbItem() {
+  const items = GALLERY_ITEMS.filter(it => it.src);
+  if (!items.length) return;
+  if (lbIndex < 0) lbIndex = items.length - 1;
+  if (lbIndex >= items.length) lbIndex = 0;
+  const item = items[lbIndex];
+  const wrap = document.getElementById('lbMediaWrap');
+  const prevVid = wrap.querySelector('video');
+  if (prevVid) prevVid.pause();
+  if (item.type === 'video') {
+    wrap.innerHTML = `<video src="${item.src}" poster="${item.poster || ''}" controls playsinline></video>`;
+  } else {
+    wrap.innerHTML = `<img src="${item.src}" alt="${item.caption || ''}">`;
+  }
+  document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${items.length}`;
+}
+
+// ===== 방명록 =====
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatDate(iso) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function loadGuestbook() {
+  const el = document.getElementById('gbMessages');
+  if (!el) return;
+  if (!db) { el.innerHTML = '<p class="gb-empty">Supabase 연결이 필요합니다.</p>'; return; }
+  const { data, error } = await db
+    .from('guestbook')
+    .select('name,message,created_at')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) { el.innerHTML = '<p class="gb-empty">메시지를 불러올 수 없습니다.</p>'; return; }
+  if (!data || data.length === 0) {
+    el.innerHTML = '<p class="gb-empty">아직 메시지가 없어요<br>첫 번째 축하를 남겨주세요 ✨</p>';
+    return;
+  }
+  el.innerHTML = data.map(row => `
+    <div class="gb-card">
+      <div class="gb-card-top">
+        <span class="gb-card-name">${escapeHtml(row.name)}</span>
+        <span class="gb-card-date">${formatDate(row.created_at)}</span>
+      </div>
+      <p class="gb-card-msg">${escapeHtml(row.message)}</p>
+    </div>
+  `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 갤러리: Supabase에서 fetch 후 렌더링
+  fetchGalleryItems().then(items => { GALLERY_ITEMS = items; renderGallery(); });
+
+  // 방명록 로드
+  loadGuestbook();
+
+  // 방명록 폼 제출
+  const gbForm = document.getElementById('gbForm');
+  if (gbForm) {
+    gbForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const nameEl = document.getElementById('gbName');
+      const msgEl  = document.getElementById('gbMessage');
+      const btn    = document.getElementById('gbSubmit');
+      const name    = nameEl.value.trim();
+      const message = msgEl.value.trim();
+      if (!name)    { nameEl.focus(); return; }
+      if (!message) { msgEl.focus();  return; }
+      btn.disabled = true;
+      btn.textContent = '저장 중...';
+      try {
+        const { error } = await db.from('guestbook').insert({ name, message });
+        if (error) throw error;
+        nameEl.value = '';
+        msgEl.value  = '';
+        await loadGuestbook();
+        document.getElementById('gbMessages').scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        console.error('guestbook submit:', err);
+        alert('메시지 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '남기기';
+      }
+    });
+  }
+
+  const btnCopy = document.getElementById('btnCopyAddr');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      navigator.clipboard.writeText('서울 마포구 백범로 23').then(() => {
+        const orig = btnCopy.textContent;
+        btnCopy.textContent = '복사 완료 ✓';
+        setTimeout(() => { btnCopy.textContent = orig; }, 2000);
+      });
+    });
+  }
+  document.getElementById('lbClose').addEventListener('click', closeLightbox);
+  document.getElementById('lbPrev').addEventListener('click', () => { lbIndex--; showLbItem(); });
+  document.getElementById('lbNext').addEventListener('click', () => { lbIndex++; showLbItem(); });
+  document.getElementById('lightbox').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeLightbox();
+  });
+  document.addEventListener('keydown', e => {
+    const lb = document.getElementById('lightbox');
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft')  { lbIndex--; showLbItem(); }
+    if (e.key === 'ArrowRight') { lbIndex++; showLbItem(); }
+    if (e.key === 'Escape') closeLightbox();
+  });
+  // 터치 스와이프
+  let tsX = 0;
+  const lbEl = document.getElementById('lightbox');
+  lbEl.addEventListener('touchstart', e => { tsX = e.touches[0].clientX; }, { passive: true });
+  lbEl.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tsX;
+    if (Math.abs(dx) > 40) { dx < 0 ? lbIndex++ : lbIndex--; showLbItem(); }
+  });
+});
+
 (() => {
   const $ = id => document.getElementById(id);
   const bgS=$('bgSurface'),bgSh=$('bgShallow'),bgD=$('bgDeep'),bgC=$('bgCoral'),bgR=$('bgRise');
@@ -556,7 +881,7 @@
     pInvite.classList.toggle('active', t>=.37&&t<.55);
     pGallery.classList.toggle('active', t>=.58&&t<.73);
     pClosing.classList.toggle('active', t>=.78);
-    sHint.style.opacity = t<.08?1:0;
+    sHint.classList.toggle('hidden', t >= .08);
 
     // === DUCKS ===
     const st = getDuckState(t);
@@ -584,6 +909,12 @@
       : 'drop-shadow(0 4px 10px rgba(0,0,0,.25))';
     dL.style.filter = glow;
     dR.style.filter = glow;
+
+    // 방명록 구간 진입 시 오리 숨기기
+    const gbSection = document.getElementById('guestbookSection');
+    const inGuestbook = gbSection && window.scrollY + window.innerHeight > gbSection.offsetTop + 80;
+    dL.style.opacity = inGuestbook ? '0' : '1';
+    dR.style.opacity = inGuestbook ? '0' : '1';
 
     // Bubble trails
     if (uw) {
