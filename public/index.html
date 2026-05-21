@@ -644,6 +644,108 @@
   /* Responsive */
   @media(min-width:480px){
     body { max-width:430px; margin:0 auto; box-shadow:0 0 60px rgba(0,0,0,.5) }
+    #scrollIndicator { right: max(8px, calc((100vw - 430px) / 2 + 8px)); }
+  }
+
+  /* ===== FONT SIZE INCREASES ===== */
+  .panel-title .subtitle { font-size: 14px; }
+  .panel-title .names { font-size: 30px; }
+  .panel-dive h2 { font-size: 19px; }
+  .panel-dive p { font-size: 15px; line-height: 2.0; }
+  .invitation-card .couple-names { font-size: 26px; }
+  .invitation-card .parents { font-size: 13px; }
+  .invitation-card .venue { font-size: 14px; }
+  .gallery-wrap h2 { font-size: 24px; }
+  .closing-wrap h2 { font-size: 21px; }
+  .closing-wrap p { font-size: 15px; }
+  .closing-wrap .date-badge { font-size: 15px; }
+  .chat-title { font-size: 22px; }
+  .msg-bubble { font-size: 14px; }
+  .share-title, .thanks-title { font-size: 20px; }
+  .share-sub, .thanks-desc { font-size: 13px; }
+  .scroll-hint { cursor: pointer; }
+
+  /* ===== RIGHT SCROLL INDICATOR ===== */
+  #scrollIndicator {
+    position: fixed;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 65vh;
+    width: 24px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  #scrollTrackBar {
+    position: relative;
+    width: 2px;
+    height: 100%;
+    background: rgba(255,255,255,0.18);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  #siTrackFill {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--coral), var(--gold));
+    height: 0%;
+    pointer-events: none;
+  }
+  .si-dot {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    border: 1px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+    z-index: 1;
+    pointer-events: auto;
+    transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
+  }
+  .si-dot::after {
+    content: attr(data-label);
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: rgba(255,255,255,0.9);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-family: 'Noto Serif KR', serif;
+    pointer-events: none;
+    background: rgba(0,0,0,0.55);
+    padding: 3px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.5px;
+  }
+  .si-dot:hover::after { opacity: 1; }
+  .si-dot.si-active {
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 6px rgba(212,168,83,0.7);
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+  #siDuck {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    line-height: 1;
+    z-index: 2;
+    pointer-events: none;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+    will-change: top;
+    transition: top 0.25s ease-out;
+    user-select: none;
   }
 </style>
 </head>
@@ -994,6 +1096,21 @@
   </form>
 </div>
 
+<!-- Right side scroll indicator with duck -->
+<div id="scrollIndicator">
+  <div id="scrollTrackBar">
+    <div id="siTrackFill"></div>
+    <div class="si-dot" data-t="0"    data-label="처음"   style="top:0%"></div>
+    <div class="si-dot" data-t="0.18" data-label="버디체크" style="top:18%"></div>
+    <div class="si-dot" data-t="0.37" data-label="청첩장"  style="top:37%"></div>
+    <div class="si-dot" data-t="0.58" data-label="갤러리"  style="top:58%"></div>
+    <div class="si-dot" data-t="0.78" data-label="마무리"  style="top:78%"></div>
+    <div class="si-dot" data-t="0.86" data-label="공유"    style="top:86%"></div>
+    <div class="si-dot" data-t="0.94" data-label="방명록"  style="top:94%"></div>
+    <div id="siDuck">🦆</div>
+  </div>
+</div>
+
 <div class="scroll-canvas"></div>
 
 <script>
@@ -1162,6 +1279,8 @@ function openLightbox(index) {
 function closeLightbox() {
   const lb = document.getElementById('lightbox');
   lb.classList.remove('open');
+  // Suppress scroll events during position restore to prevent blank-screen flash
+  window._suppressScrollUpdate = true;
   document.body.style.overflow = '';
   document.body.style.position = '';
   document.body.style.top = '';
@@ -1171,6 +1290,11 @@ function closeLightbox() {
   const vid = wrap.querySelector('video');
   if (vid) vid.pause();
   wrap.innerHTML = '';
+  // After scroll is fully restored, re-enable updates and force a render
+  requestAnimationFrame(() => {
+    window._suppressScrollUpdate = false;
+    if (window._scrollUpdate) window._scrollUpdate();
+  });
 }
 
 function showLbItem() {
@@ -1406,6 +1530,24 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast(ok ? '링크가 복사되었습니다' : '공유에 실패했어요');
     });
   }
+  // 같이 뛰어들어요 클릭 → 다이브 섹션으로 스크롤
+  const scrollHintEl = document.getElementById('scrollHint');
+  if (scrollHintEl) {
+    scrollHintEl.addEventListener('click', () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: Math.round(0.18 * maxScroll), behavior: 'smooth' });
+    });
+  }
+
+  // 섹션 점 클릭 → 해당 섹션으로 점프
+  document.querySelectorAll('.si-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      const t = parseFloat(dot.dataset.t);
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: Math.round(t * maxScroll), behavior: 'smooth' });
+    });
+  });
+
   document.getElementById('lbClose').addEventListener('click', closeLightbox);
   document.getElementById('lbPrev').addEventListener('click', () => { lbIndex--; showLbItem(); });
   document.getElementById('lbNext').addEventListener('click', () => { lbIndex++; showLbItem(); });
@@ -1437,6 +1579,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const dL=$('duckL'),dR=$('duckR');
   const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing'),pInfo=$('panelInfo'),pGuestbook=$('panelGuestbook');
   const sHint=$('scrollHint'),sProgress=$('scrollProgress');
+  // Scroll indicator elements
+  const siDuckEl=$('siDuck'),siTrackFillEl=$('siTrackFill');
+  const siDotsEls=document.querySelectorAll('.si-dot');
 
   // ===== DUCK KEYFRAMES =====
   // lx/rx = left/right duck center (% of vw), y = % of vh, angle = tilt °, scale
@@ -1608,12 +1753,27 @@ document.addEventListener('DOMContentLoaded', () => {
         spawnBubble(rPixX + dw * .2, rPixY + 5);
       }
     }
+
+    // === SCROLL INDICATOR ===
+    if (siTrackFillEl) siTrackFillEl.style.height = (t * 100) + '%';
+    if (siDuckEl) siDuckEl.style.top = `calc(${t * 100}% - 9px)`;
+    if (siDotsEls.length) {
+      let activeI = 0;
+      siDotsEls.forEach((dot, i) => {
+        if (parseFloat(dot.dataset.t) <= t) activeI = i;
+      });
+      siDotsEls.forEach((dot, i) => dot.classList.toggle('si-active', i === activeI));
+    }
   }
 
   let ticking = false;
   window.addEventListener('scroll', () => {
+    if (window._suppressScrollUpdate) return;
     if (!ticking) { requestAnimationFrame(() => { update(); ticking=false; }); ticking=true; }
   });
+
+  // Export update for lightbox close restoration
+  window._scrollUpdate = update;
 
   // Also run on resize
   window.addEventListener('resize', update);
