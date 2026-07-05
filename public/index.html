@@ -313,16 +313,32 @@
   }
 
   /* Guestbook — 청첩장 + 다이빙 마스크 모티프 (기존 배경 위 panel) */
-  #panelGuestbook {
-    padding:0 !important;
-    justify-content:flex-start !important;
-    align-items:stretch !important;
+  /* 방명록 오버레이 */
+  .gb-overlay {
+    display:none; position:fixed; inset:0; z-index:9000;
+    background:rgba(0,0,0,.55); backdrop-filter:blur(6px);
   }
+  .gb-overlay.open { display:block; }
+  .gb-sheet {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    background:linear-gradient(180deg,#f5efe6 0%,#ede4d8 100%);
+  }
+  .gb-close {
+    position:absolute; top:12px; right:14px; z-index:1;
+    width:36px; height:36px; border-radius:50%; border:none;
+    background:rgba(58,42,26,.12); color:#5A3E28;
+    font-size:22px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    touch-action:manipulation;
+  }
+  .gb-close:active { background:rgba(58,42,26,.22); }
+
   .chat-window {
     width:100%; max-width:430px; margin:0 auto;
-    height:calc(100vh - 84px);
+    flex:1; min-height:0;
     display:flex; flex-direction:column;
-    padding:24px 18px 8px;
+    padding:52px 18px 8px;
   }
   .chat-header {
     text-align:center; padding:0 0 14px;
@@ -961,7 +977,7 @@
         넓은 마음으로 양해 부탁드립니다.
       </p>
 
-      <div class="acc-group" data-side="groom">
+      <div class="acc-group open" data-side="groom">
         <button class="acc-toggle" type="button">
           신랑 측 계좌번호 <span class="acc-arrow"></span>
         </button>
@@ -990,7 +1006,7 @@
         </div>
       </div>
 
-      <div class="acc-group" data-side="bride">
+      <div class="acc-group open" data-side="bride">
         <button class="acc-toggle" type="button">
           신부 측 계좌번호 <span class="acc-arrow"></span>
         </button>
@@ -1021,6 +1037,9 @@
           </button>
           <button class="guide-btn" type="button" data-popup="1">
             🎷 공연 및 뒷풀이 안내
+          </button>
+          <button class="guide-btn" type="button" id="btnOpenGuestbook">
+            💌 축하의 한 마디 전하기
           </button>
         </div>
       </div>
@@ -1058,44 +1077,42 @@
   </div>
 </div>
 
-<!-- 방명록: 청첩장+다이빙마스크 모티프 패널 (closing 다음 구간, 같은 배경 위) -->
-<div class="content-panel" id="panelGuestbook">
-  <div class="chat-window">
-    <div class="chat-header">
-      <svg class="chat-mask-icon" viewBox="0 0 60 36" fill="none" aria-hidden="true">
-        <!-- strap 곡선 -->
-        <path d="M2 11 Q14 6 30 6 Q46 6 58 11" stroke="rgba(212,168,83,.6)" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-        <!-- 마스크 외곽 -->
-        <path d="M7 10 Q7 6 11 6 L49 6 Q53 6 53 10 L53 22 Q53 28 47 28 L41 28 Q35 28 33 22 L27 22 Q25 28 19 28 L13 28 Q7 28 7 22 Z"
-              stroke="rgba(212,168,83,.85)" stroke-width="1.3" fill="rgba(255,255,255,.32)"/>
-        <!-- 좌측 lens -->
-        <ellipse cx="18" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
-        <!-- 우측 lens -->
-        <ellipse cx="42" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
-        <!-- lens highlight -->
-        <ellipse cx="15.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
-        <ellipse cx="39.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
-      </svg>
-      <div class="chat-eyebrow">Message Log</div>
-      <div class="chat-title">축하의 한 마디</div>
-      <div class="chat-sub">영진 ♥ 수연 · 2026.08.01</div>
-      <div class="chat-deco-line"></div>
-    </div>
-    <div class="chat-viewport">
-      <div class="chat-messages" id="chatMessages">
-        <p class="chat-loading">메시지를 불러오는 중...</p>
+<!-- 방명록 오버레이 (버튼으로 열리는 전체화면 모달) -->
+<div class="gb-overlay" id="gbOverlay">
+  <div class="gb-sheet" id="panelGuestbook">
+    <button class="gb-close" id="gbClose" aria-label="닫기">×</button>
+    <div class="chat-window">
+      <div class="chat-header">
+        <svg class="chat-mask-icon" viewBox="0 0 60 36" fill="none" aria-hidden="true">
+          <path d="M2 11 Q14 6 30 6 Q46 6 58 11" stroke="rgba(212,168,83,.6)" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+          <path d="M7 10 Q7 6 11 6 L49 6 Q53 6 53 10 L53 22 Q53 28 47 28 L41 28 Q35 28 33 22 L27 22 Q25 28 19 28 L13 28 Q7 28 7 22 Z"
+                stroke="rgba(212,168,83,.85)" stroke-width="1.3" fill="rgba(255,255,255,.32)"/>
+          <ellipse cx="18" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
+          <ellipse cx="42" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
+          <ellipse cx="15.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
+          <ellipse cx="39.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
+        </svg>
+        <div class="chat-eyebrow">Message Log</div>
+        <div class="chat-title">축하의 한 마디</div>
+        <div class="chat-sub">영진 ♥ 수연 · 2026.08.01</div>
+        <div class="chat-deco-line"></div>
+      </div>
+      <div class="chat-viewport">
+        <div class="chat-messages" id="chatMessages">
+          <p class="chat-loading">메시지를 불러오는 중...</p>
+        </div>
       </div>
     </div>
+    <form class="chat-input-bar" id="chatForm" autocomplete="off">
+      <input class="chat-name-input" id="chatName" type="text" placeholder="이름" maxlength="20">
+      <input class="chat-msg-input" id="chatMessage" type="text" placeholder="축하의 한 마디를 보내주세요" maxlength="500">
+      <button class="chat-send" id="chatSend" type="submit" aria-label="전송">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+          <path d="M3 12L21 4L13 21L11 13L3 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </form>
   </div>
-  <form class="chat-input-bar" id="chatForm" autocomplete="off">
-    <input class="chat-name-input" id="chatName" type="text" placeholder="이름" maxlength="20">
-    <input class="chat-msg-input" id="chatMessage" type="text" placeholder="축하의 한 마디를 보내주세요" maxlength="500">
-    <button class="chat-send" id="chatSend" type="submit" aria-label="전송">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-        <path d="M3 12L21 4L13 21L11 13L3 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
-      </svg>
-    </button>
-  </form>
 </div>
 
 <div class="scroll-canvas"></div>
@@ -1418,15 +1435,37 @@ function setupEntryPopups() {
   showEntryPopup(0);
 }
 
+function openGuestbook() {
+  const ov = document.getElementById('gbOverlay');
+  if (!ov) return;
+  ov.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  loadGuestbook();
+}
+
+function closeGuestbook() {
+  const ov = document.getElementById('gbOverlay');
+  if (!ov) return;
+  ov.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setupEntryPopups();
+
+  // 방명록 오버레이 열기/닫기
+  const btnGb = document.getElementById('btnOpenGuestbook');
+  if (btnGb) btnGb.addEventListener('click', openGuestbook);
+  const gbClose = document.getElementById('gbClose');
+  if (gbClose) gbClose.addEventListener('click', closeGuestbook);
+  const gbOverlay = document.getElementById('gbOverlay');
+  if (gbOverlay) gbOverlay.addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeGuestbook();
+  });
 
   // 갤러리: Supabase에서 fetch 후 렌더링
   fetchGalleryItems().then(items => { GALLERY_ITEMS = items; renderGallery(); });
   setupCarouselControls();
-
-  // 방명록 로드
-  loadGuestbook();
 
   // 저장된 이름 불러오기 (이미 적은 사람은 이름 칸 숨김)
   const chatNameEl = document.getElementById('chatName');
@@ -1612,7 +1651,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const bgS=$('bgSurface'),bgSh=$('bgShallow'),bgD=$('bgDeep'),bgC=$('bgCoral'),bgR=$('bgRise');
   const elSun=$('elSun'),elWater=$('elWater'),elRays=$('elRays'),elBub=$('elBub'),elPtc=$('elPtc'),elCoral=$('elCoral');
   const dL=$('duckL'),dR=$('duckR');
-  const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing'),pInfo=$('panelInfo'),pGuestbook=$('panelGuestbook');
+  const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing'),pInfo=$('panelInfo');
   const sHint=$('scrollHint'),sProgress=$('scrollProgress');
 
   // ===== DUCK KEYFRAMES =====
@@ -1739,8 +1778,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pInvite.classList.toggle('active', t>=.37&&t<.55);
     pGallery.classList.toggle('active', t>=.58&&t<.73);
     pClosing.classList.toggle('active', t>=.78&&t<.86);
-    pInfo.classList.toggle('active', t>=.86&&t<.94);
-    pGuestbook.classList.toggle('active', t>=.94);
+    pInfo.classList.toggle('active', t>=.86);
     sHint.classList.toggle('hidden', t >= .08);
 
     // === DUCKS ===
@@ -1771,7 +1809,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dR.style.filter = glow;
 
     // 정보/방명록 패널 진입 시 오리 숨기기
-    const hideDucks = pInfo.classList.contains('active') || pGuestbook.classList.contains('active');
+    const hideDucks = pInfo.classList.contains('active');
     dL.style.opacity = hideDucks ? '0' : '1';
     dR.style.opacity = hideDucks ? '0' : '1';
 
