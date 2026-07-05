@@ -313,16 +313,32 @@
   }
 
   /* Guestbook — 청첩장 + 다이빙 마스크 모티프 (기존 배경 위 panel) */
-  #panelGuestbook {
-    padding:0 !important;
-    justify-content:flex-start !important;
-    align-items:stretch !important;
+  /* 방명록 오버레이 */
+  .gb-overlay {
+    display:none; position:fixed; inset:0; z-index:9000;
+    background:rgba(0,0,0,.55); backdrop-filter:blur(6px);
   }
+  .gb-overlay.open { display:block; }
+  .gb-sheet {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    background:linear-gradient(180deg,#f5efe6 0%,#ede4d8 100%);
+  }
+  .gb-close {
+    position:absolute; top:12px; right:14px; z-index:1;
+    width:36px; height:36px; border-radius:50%; border:none;
+    background:rgba(58,42,26,.12); color:#5A3E28;
+    font-size:22px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    touch-action:manipulation;
+  }
+  .gb-close:active { background:rgba(58,42,26,.22); }
+
   .chat-window {
     width:100%; max-width:430px; margin:0 auto;
-    height:calc(100vh - 84px);
+    flex:1; min-height:0;
     display:flex; flex-direction:column;
-    padding:24px 18px 8px;
+    padding:52px 18px 8px;
   }
   .chat-header {
     text-align:center; padding:0 0 14px;
@@ -376,8 +392,7 @@
     display:flex; flex-direction:column; gap:12px;
     padding:18px 16px 22px;
     -webkit-overflow-scrolling:touch;
-    /* boundary 도달 시 페이지 스크롤로 전파 */
-    overscroll-behavior:auto;
+    overscroll-behavior:contain;
   }
   .chat-messages::-webkit-scrollbar { width:0; background:transparent; }
   .chat-loading, .chat-empty {
@@ -519,12 +534,32 @@
     display:flex; align-items:center; justify-content:center;
     touch-action:manipulation;
   }
-  .popup-counter {
-    position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
-    font-family:'Cormorant Garamond',serif; font-size:12px; letter-spacing:2px;
-    color:rgba(255,255,255,.8); background:rgba(0,0,0,.5);
-    padding:3px 12px; border-radius:50px;
+  .popup-nav {
+    display:none; align-items:center; justify-content:space-between;
+    padding:8px 12px; background:rgba(10,10,10,.6);
   }
+  .popup-nav.visible { display:flex; }
+  .popup-nav-btn {
+    width:36px; height:36px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.15); color:#fff;
+    font-size:22px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    touch-action:manipulation; transition: background .15s;
+  }
+  .popup-nav-btn:active { background:rgba(255,255,255,.3); }
+  .popup-nav-btn:disabled { opacity:.3; cursor:default; }
+  .popup-counter {
+    font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:2px;
+    color:rgba(255,255,255,.85);
+  }
+  .popup-action {
+    display:block; width:100%; padding:13px 0;
+    background:#2DB400; color:#fff; border:none;
+    font-size:15px; font-weight:600; letter-spacing:1px;
+    text-align:center; text-decoration:none; cursor:pointer;
+    touch-action:manipulation;
+  }
+  .popup-action:active { background:#249900; }
 
   /* Closing */
   .closing-wrap { max-width:340px; text-align:center }
@@ -590,6 +625,33 @@
   .share-btn.kakao:active { background:#F5D900; }
 
   .thanks-section { text-align:center; }
+
+  /* 안내 버튼 섹션 (버스/공연 팝업 재열기) */
+  .guide-section {
+    margin-top:36px; padding-top:28px;
+    border-top:1px solid rgba(212,168,83,.25);
+    text-align:center;
+  }
+  .guide-eyebrow {
+    font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:3px;
+    color:rgba(58,42,26,.45); margin-bottom:8px; text-transform:uppercase;
+  }
+  .guide-title {
+    font-family:'Noto Serif KR',serif; font-size:16px; font-weight:300;
+    color:#3A2A1A; letter-spacing:2px; margin-bottom:20px;
+  }
+  .guide-buttons {
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .guide-btn {
+    width:100%; padding:13px 16px;
+    background:rgba(255,255,255,.55); border:1px solid rgba(212,168,83,.4);
+    border-radius:12px; cursor:pointer; touch-action:manipulation;
+    font-family:'Noto Serif KR',serif; font-size:13px; letter-spacing:1.5px;
+    color:#5A3E28; transition: background .18s, border-color .18s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .guide-btn:active { background:rgba(212,168,83,.18); border-color:rgba(212,168,83,.6); }
 
   .acc-group {
     background:rgba(255,255,255,.5);
@@ -914,7 +976,7 @@
         넓은 마음으로 양해 부탁드립니다.
       </p>
 
-      <div class="acc-group" data-side="groom">
+      <div class="acc-group open" data-side="groom">
         <button class="acc-toggle" type="button">
           신랑 측 계좌번호 <span class="acc-arrow"></span>
         </button>
@@ -943,7 +1005,7 @@
         </div>
       </div>
 
-      <div class="acc-group" data-side="bride">
+      <div class="acc-group open" data-side="bride">
         <button class="acc-toggle" type="button">
           신부 측 계좌번호 <span class="acc-arrow"></span>
         </button>
@@ -962,6 +1024,22 @@
             </div>
             <button class="acc-copy" type="button" data-copy="신한은행 110-236-443322 한현순">복사</button>
           </div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <div class="guide-eyebrow">Guide</div>
+        <h2 class="guide-title">안내사항</h2>
+        <div class="guide-buttons">
+          <button class="guide-btn" type="button" data-popup="0">
+            🚌 버스 대절 안내
+          </button>
+          <button class="guide-btn" type="button" data-popup="1">
+            🎷 공연 및 뒷풀이 안내
+          </button>
+          <button class="guide-btn" type="button" id="btnOpenGuestbook">
+            💌 축하의 한 마디 전하기
+          </button>
         </div>
       </div>
     </section>
@@ -989,48 +1067,51 @@
   <div class="popup-box" id="popupBox">
     <button class="popup-close" id="popupClose" aria-label="닫기">×</button>
     <img id="popupImage" src="" alt="">
-    <span class="popup-counter" id="popupCounter"></span>
+    <div class="popup-nav" id="popupNav">
+      <button class="popup-nav-btn" id="popupPrev" aria-label="이전">‹</button>
+      <span class="popup-counter" id="popupCounter"></span>
+      <button class="popup-nav-btn" id="popupNext" aria-label="다음">›</button>
+    </div>
+    <a id="popupAction" class="popup-action" href="#" target="_blank" rel="noopener" style="display:none"></a>
   </div>
 </div>
 
-<!-- 방명록: 청첩장+다이빙마스크 모티프 패널 (closing 다음 구간, 같은 배경 위) -->
-<div class="content-panel" id="panelGuestbook">
-  <div class="chat-window">
-    <div class="chat-header">
-      <svg class="chat-mask-icon" viewBox="0 0 60 36" fill="none" aria-hidden="true">
-        <!-- strap 곡선 -->
-        <path d="M2 11 Q14 6 30 6 Q46 6 58 11" stroke="rgba(212,168,83,.6)" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-        <!-- 마스크 외곽 -->
-        <path d="M7 10 Q7 6 11 6 L49 6 Q53 6 53 10 L53 22 Q53 28 47 28 L41 28 Q35 28 33 22 L27 22 Q25 28 19 28 L13 28 Q7 28 7 22 Z"
-              stroke="rgba(212,168,83,.85)" stroke-width="1.3" fill="rgba(255,255,255,.32)"/>
-        <!-- 좌측 lens -->
-        <ellipse cx="18" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
-        <!-- 우측 lens -->
-        <ellipse cx="42" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
-        <!-- lens highlight -->
-        <ellipse cx="15.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
-        <ellipse cx="39.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
-      </svg>
-      <div class="chat-eyebrow">Message Log</div>
-      <div class="chat-title">축하의 한 마디</div>
-      <div class="chat-sub">영진 ♥ 수연 · 2026.08.01</div>
-      <div class="chat-deco-line"></div>
-    </div>
-    <div class="chat-viewport">
-      <div class="chat-messages" id="chatMessages">
-        <p class="chat-loading">메시지를 불러오는 중...</p>
+<!-- 방명록 오버레이 (버튼으로 열리는 전체화면 모달) -->
+<div class="gb-overlay" id="gbOverlay">
+  <div class="gb-sheet" id="panelGuestbook">
+    <button class="gb-close" id="gbClose" aria-label="닫기">×</button>
+    <div class="chat-window">
+      <div class="chat-header">
+        <svg class="chat-mask-icon" viewBox="0 0 60 36" fill="none" aria-hidden="true">
+          <path d="M2 11 Q14 6 30 6 Q46 6 58 11" stroke="rgba(212,168,83,.6)" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+          <path d="M7 10 Q7 6 11 6 L49 6 Q53 6 53 10 L53 22 Q53 28 47 28 L41 28 Q35 28 33 22 L27 22 Q25 28 19 28 L13 28 Q7 28 7 22 Z"
+                stroke="rgba(212,168,83,.85)" stroke-width="1.3" fill="rgba(255,255,255,.32)"/>
+          <ellipse cx="18" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
+          <ellipse cx="42" cy="16" rx="6.5" ry="5.5" fill="rgba(124,185,201,.42)" stroke="rgba(212,168,83,.45)" stroke-width=".7"/>
+          <ellipse cx="15.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
+          <ellipse cx="39.5" cy="13.5" rx="1.6" ry="1.2" fill="rgba(255,255,255,.7)"/>
+        </svg>
+        <div class="chat-eyebrow">Message Log</div>
+        <div class="chat-title">축하의 한 마디</div>
+        <div class="chat-sub">영진 ♥ 수연 · 2026.08.01</div>
+        <div class="chat-deco-line"></div>
+      </div>
+      <div class="chat-viewport">
+        <div class="chat-messages" id="chatMessages">
+          <p class="chat-loading">메시지를 불러오는 중...</p>
+        </div>
       </div>
     </div>
+    <form class="chat-input-bar" id="chatForm" autocomplete="off">
+      <input class="chat-name-input" id="chatName" type="text" placeholder="이름" maxlength="20">
+      <input class="chat-msg-input" id="chatMessage" type="text" placeholder="축하의 한 마디를 보내주세요" maxlength="500">
+      <button class="chat-send" id="chatSend" type="submit" aria-label="전송">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+          <path d="M3 12L21 4L13 21L11 13L3 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </form>
   </div>
-  <form class="chat-input-bar" id="chatForm" autocomplete="off">
-    <input class="chat-name-input" id="chatName" type="text" placeholder="이름" maxlength="20">
-    <input class="chat-msg-input" id="chatMessage" type="text" placeholder="축하의 한 마디를 보내주세요" maxlength="500">
-    <button class="chat-send" id="chatSend" type="submit" aria-label="전송">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-        <path d="M3 12L21 4L13 21L11 13L3 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
-      </svg>
-    </button>
-  </form>
 </div>
 
 <div class="scroll-canvas"></div>
@@ -1287,31 +1368,48 @@ async function loadGuestbook() {
 const _POPUP_BASE = `${window.SUPABASE_URL}/storage/v1/object/public/popup`;
 const ENTRY_POPUPS = [
   { src: `${_POPUP_BASE}/bus.webp`, alt: '8월 1일 대구-서울 버스 탑승 안내' },
-  // { src: `${_POPUP_BASE}/band.webp`, alt: '중앙제일밴드 축하공연 및 뒷풀이 안내' },
+  { src: `${_POPUP_BASE}/band.webp`, alt: '중앙제일밴드 축하공연 및 뒷풀이 안내', link: 'https://naver.me/xP8rvjOA', linkText: '길찾기' },
 ];
 let popupIndex = 0;
 
 function showEntryPopup(i) {
   const overlay = document.getElementById('popupOverlay');
   const img = document.getElementById('popupImage');
+  const nav = document.getElementById('popupNav');
   const counter = document.getElementById('popupCounter');
+  const prev = document.getElementById('popupPrev');
+  const next = document.getElementById('popupNext');
+  const action = document.getElementById('popupAction');
   if (!overlay || !img) return;
   popupIndex = i;
-  img.src = ENTRY_POPUPS[i].src;
-  img.alt = ENTRY_POPUPS[i].alt;
-  counter.textContent = ENTRY_POPUPS.length > 1 ? `${i + 1} / ${ENTRY_POPUPS.length}` : '';
+  const p = ENTRY_POPUPS[i];
+  img.src = p.src;
+  img.alt = p.alt;
+  if (nav) {
+    if (ENTRY_POPUPS.length > 1) {
+      nav.classList.add('visible');
+      counter.textContent = `${i + 1} / ${ENTRY_POPUPS.length}`;
+      if (prev) prev.disabled = i === 0;
+      if (next) next.disabled = i === ENTRY_POPUPS.length - 1;
+    } else {
+      nav.classList.remove('visible');
+    }
+  }
+  if (action) {
+    if (p.link) {
+      action.href = p.link;
+      action.textContent = p.linkText || '바로가기';
+      action.style.display = 'block';
+    } else {
+      action.style.display = 'none';
+    }
+  }
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
 function closeEntryPopup() {
-  const overlay = document.getElementById('popupOverlay');
-  popupIndex++;
-  if (popupIndex < ENTRY_POPUPS.length) {
-    showEntryPopup(popupIndex);
-    return;
-  }
-  overlay.classList.remove('open');
+  document.getElementById('popupOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
 
@@ -1321,18 +1419,62 @@ function setupEntryPopups() {
   document.getElementById('popupOverlay').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeEntryPopup();
   });
+  document.getElementById('popupPrev').addEventListener('click', () => {
+    if (popupIndex > 0) showEntryPopup(popupIndex - 1);
+  });
+  document.getElementById('popupNext').addEventListener('click', () => {
+    if (popupIndex < ENTRY_POPUPS.length - 1) showEntryPopup(popupIndex + 1);
+  });
+  document.querySelectorAll('.guide-btn[data-popup]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.popup, 10);
+      if (!isNaN(idx) && idx < ENTRY_POPUPS.length) showEntryPopup(idx);
+    });
+  });
   showEntryPopup(0);
+}
+
+function openGuestbook() {
+  const ov = document.getElementById('gbOverlay');
+  if (!ov) return;
+  // iOS에서도 안전하게 페이지 스크롤 완전 잠금
+  const scrollY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.width = '100%';
+  document.body.dataset.gbScrollY = scrollY;
+  ov.classList.add('open');
+  loadGuestbook();
+}
+
+function closeGuestbook() {
+  const ov = document.getElementById('gbOverlay');
+  if (!ov) return;
+  ov.classList.remove('open');
+  // 잠갔던 스크롤 위치 복원
+  const scrollY = parseInt(document.body.dataset.gbScrollY || '0', 10);
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  window.scrollTo(0, scrollY);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   setupEntryPopups();
 
+  // 방명록 오버레이 열기/닫기
+  const btnGb = document.getElementById('btnOpenGuestbook');
+  if (btnGb) btnGb.addEventListener('click', openGuestbook);
+  const gbClose = document.getElementById('gbClose');
+  if (gbClose) gbClose.addEventListener('click', closeGuestbook);
+  const gbOverlay = document.getElementById('gbOverlay');
+  if (gbOverlay) gbOverlay.addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeGuestbook();
+  });
+
   // 갤러리: Supabase에서 fetch 후 렌더링
   fetchGalleryItems().then(items => { GALLERY_ITEMS = items; renderGallery(); });
   setupCarouselControls();
-
-  // 방명록 로드
-  loadGuestbook();
 
   // 저장된 이름 불러오기 (이미 적은 사람은 이름 칸 숨김)
   const chatNameEl = document.getElementById('chatName');
@@ -1342,16 +1484,21 @@ document.addEventListener('DOMContentLoaded', () => {
     chatNameEl.style.display = 'none';
   }
 
-  // 채팅창 boundary에서 페이지 스크롤로 전파 (위로 다시 올라갈 수 있게)
+  // 방명록 오버레이: 스크롤 가능한 영역(chat-messages) 밖에서만 이벤트 차단
+  const gbOverlayEl = document.getElementById('gbOverlay');
   const chatMessagesEl = document.getElementById('chatMessages');
-  if (chatMessagesEl) {
-    chatMessagesEl.addEventListener('wheel', e => {
-      const atTop    = chatMessagesEl.scrollTop <= 0;
-      const atBottom = chatMessagesEl.scrollTop + chatMessagesEl.clientHeight >= chatMessagesEl.scrollHeight - 1;
-      if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
-        window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+  if (gbOverlayEl) {
+    const blockIfOutsideChat = e => {
+      if (!chatMessagesEl || !chatMessagesEl.contains(e.target)) {
+        e.preventDefault();
       }
-    }, { passive: true });
+    };
+    gbOverlayEl.addEventListener('touchmove', blockIfOutsideChat, { passive: false });
+    gbOverlayEl.addEventListener('wheel', e => {
+      if (!chatMessagesEl || !chatMessagesEl.contains(e.target)) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   }
 
   // 채팅 폼 제출
@@ -1518,7 +1665,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const bgS=$('bgSurface'),bgSh=$('bgShallow'),bgD=$('bgDeep'),bgC=$('bgCoral'),bgR=$('bgRise');
   const elSun=$('elSun'),elWater=$('elWater'),elRays=$('elRays'),elBub=$('elBub'),elPtc=$('elPtc'),elCoral=$('elCoral');
   const dL=$('duckL'),dR=$('duckR');
-  const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing'),pInfo=$('panelInfo'),pGuestbook=$('panelGuestbook');
+  const pTitle=$('panelTitle'),pDive=$('panelDive'),pInvite=$('panelInvite'),pGallery=$('panelGallery'),pClosing=$('panelClosing'),pInfo=$('panelInfo');
   const sHint=$('scrollHint'),sProgress=$('scrollProgress');
 
   // ===== DUCK KEYFRAMES =====
@@ -1645,8 +1792,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pInvite.classList.toggle('active', t>=.37&&t<.55);
     pGallery.classList.toggle('active', t>=.58&&t<.73);
     pClosing.classList.toggle('active', t>=.78&&t<.86);
-    pInfo.classList.toggle('active', t>=.86&&t<.94);
-    pGuestbook.classList.toggle('active', t>=.94);
+    pInfo.classList.toggle('active', t>=.86);
     sHint.classList.toggle('hidden', t >= .08);
 
     // === DUCKS ===
@@ -1677,7 +1823,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dR.style.filter = glow;
 
     // 정보/방명록 패널 진입 시 오리 숨기기
-    const hideDucks = pInfo.classList.contains('active') || pGuestbook.classList.contains('active');
+    const hideDucks = pInfo.classList.contains('active');
     dL.style.opacity = hideDucks ? '0' : '1';
     dR.style.opacity = hideDucks ? '0' : '1';
 
