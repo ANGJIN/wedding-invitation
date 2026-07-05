@@ -496,6 +496,36 @@
   .lb-media-wrap img { max-width:100vw; max-height:85vh; object-fit:contain; }
   .lb-media-wrap video { max-width:100vw; max-height:85vh; outline:none; }
 
+  /* Entry Popups (이미지 안내 팝업) */
+  .popup-overlay {
+    display:none; position:fixed; inset:0; z-index:10000;
+    background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center; padding:24px;
+  }
+  .popup-overlay.open { display:flex; }
+  .popup-box {
+    position:relative; max-width:400px; width:100%;
+    background:rgba(20,20,20,.4); border-radius:18px; overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .popup-box img {
+    display:block; width:100%; max-height:75vh; object-fit:contain;
+    background:rgba(255,255,255,.04);
+  }
+  .popup-close {
+    position:absolute; top:8px; right:8px; width:32px; height:32px;
+    border-radius:50%; border:none; background:rgba(0,0,0,.55);
+    color:#fff; font-size:20px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    touch-action:manipulation;
+  }
+  .popup-counter {
+    position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+    font-family:'Cormorant Garamond',serif; font-size:12px; letter-spacing:2px;
+    color:rgba(255,255,255,.8); background:rgba(0,0,0,.5);
+    padding:3px 12px; border-radius:50px;
+  }
+
   /* Closing */
   .closing-wrap { max-width:340px; text-align:center }
   .closing-wrap h2 { font-size:19px; font-weight:300; color:#3A2A1A; margin-bottom:20px; letter-spacing:2px; line-height:1.8 }
@@ -954,6 +984,15 @@
   <div class="lb-media-wrap" id="lbMediaWrap"></div>
 </div>
 
+<!-- 진입 안내 팝업 (버스 탑승 안내 / 축하공연 안내 등, 이미지 기반) -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box" id="popupBox">
+    <button class="popup-close" id="popupClose" aria-label="닫기">×</button>
+    <img id="popupImage" src="" alt="">
+    <span class="popup-counter" id="popupCounter"></span>
+  </div>
+</div>
+
 <!-- 방명록: 청첩장+다이빙마스크 모티프 패널 (closing 다음 구간, 같은 배경 위) -->
 <div class="content-panel" id="panelGuestbook">
   <div class="chat-window">
@@ -1243,7 +1282,51 @@ async function loadGuestbook() {
   el.scrollTop = el.scrollHeight;
 }
 
+// ===== 진입 안내 팝업 =====
+// popup 버킷에 이미지를 추가하면 아래 배열에 src만 추가하면 됩니다.
+const _POPUP_BASE = `${window.SUPABASE_URL}/storage/v1/object/public/popup`;
+const ENTRY_POPUPS = [
+  { src: `${_POPUP_BASE}/bus.webp`, alt: '8월 1일 대구-서울 버스 탑승 안내' },
+  // { src: `${_POPUP_BASE}/band.webp`, alt: '중앙제일밴드 축하공연 및 뒷풀이 안내' },
+];
+let popupIndex = 0;
+
+function showEntryPopup(i) {
+  const overlay = document.getElementById('popupOverlay');
+  const img = document.getElementById('popupImage');
+  const counter = document.getElementById('popupCounter');
+  if (!overlay || !img) return;
+  popupIndex = i;
+  img.src = ENTRY_POPUPS[i].src;
+  img.alt = ENTRY_POPUPS[i].alt;
+  counter.textContent = ENTRY_POPUPS.length > 1 ? `${i + 1} / ${ENTRY_POPUPS.length}` : '';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEntryPopup() {
+  const overlay = document.getElementById('popupOverlay');
+  popupIndex++;
+  if (popupIndex < ENTRY_POPUPS.length) {
+    showEntryPopup(popupIndex);
+    return;
+  }
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function setupEntryPopups() {
+  if (!ENTRY_POPUPS.length) return;
+  document.getElementById('popupClose').addEventListener('click', closeEntryPopup);
+  document.getElementById('popupOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeEntryPopup();
+  });
+  showEntryPopup(0);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  setupEntryPopups();
+
   // 갤러리: Supabase에서 fetch 후 렌더링
   fetchGalleryItems().then(items => { GALLERY_ITEMS = items; renderGallery(); });
   setupCarouselControls();
