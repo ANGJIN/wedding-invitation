@@ -392,8 +392,7 @@
     display:flex; flex-direction:column; gap:12px;
     padding:18px 16px 22px;
     -webkit-overflow-scrolling:touch;
-    /* boundary 도달 시 페이지 스크롤로 전파 */
-    overscroll-behavior:auto;
+    overscroll-behavior:contain;
   }
   .chat-messages::-webkit-scrollbar { width:0; background:transparent; }
   .chat-loading, .chat-empty {
@@ -1485,11 +1484,21 @@ document.addEventListener('DOMContentLoaded', () => {
     chatNameEl.style.display = 'none';
   }
 
-  // 방명록 오버레이 안에서 wheel 이벤트가 페이지로 전파되지 않도록 차단
+  // 방명록 오버레이: 스크롤 가능한 영역(chat-messages) 밖에서만 이벤트 차단
   const gbOverlayEl = document.getElementById('gbOverlay');
+  const chatMessagesEl = document.getElementById('chatMessages');
   if (gbOverlayEl) {
-    gbOverlayEl.addEventListener('wheel', e => { e.stopPropagation(); }, { passive: true });
-    gbOverlayEl.addEventListener('touchmove', e => { e.stopPropagation(); }, { passive: true });
+    const blockIfOutsideChat = e => {
+      if (!chatMessagesEl || !chatMessagesEl.contains(e.target)) {
+        e.preventDefault();
+      }
+    };
+    gbOverlayEl.addEventListener('touchmove', blockIfOutsideChat, { passive: false });
+    gbOverlayEl.addEventListener('wheel', e => {
+      if (!chatMessagesEl || !chatMessagesEl.contains(e.target)) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   }
 
   // 채팅 폼 제출
