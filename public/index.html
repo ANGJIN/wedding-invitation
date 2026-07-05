@@ -1283,10 +1283,11 @@ async function loadGuestbook() {
 }
 
 // ===== 진입 안내 팝업 =====
-// 이미지 준비되면 src만 교체하면 됩니다 (public/ 폴더에 넣고 "/파일명"으로 지정).
+// popup 버킷에 이미지를 추가하면 아래 배열에 src만 추가하면 됩니다.
+const _POPUP_BASE = `${window.SUPABASE_URL}/storage/v1/object/public/popup`;
 const ENTRY_POPUPS = [
-  { src: '/popup-bus.jpg', alt: '8월 1일 대구-서울 버스 탑승 안내' },
-  { src: '/popup-band.jpg', alt: '중앙제일밴드 축하공연 및 뒷풀이 안내' },
+  { src: `${_POPUP_BASE}/bus.webp`, alt: '8월 1일 대구-서울 버스 탑승 안내' },
+  // { src: `${_POPUP_BASE}/band.webp`, alt: '중앙제일밴드 축하공연 및 뒷풀이 안내' },
 ];
 let popupIndex = 0;
 
