@@ -525,6 +525,14 @@
     color:rgba(255,255,255,.8); background:rgba(0,0,0,.5);
     padding:3px 12px; border-radius:50px;
   }
+  .popup-action {
+    display:block; width:100%; padding:13px 0;
+    background:#2DB400; color:#fff; border:none;
+    font-size:15px; font-weight:600; letter-spacing:1px;
+    text-align:center; text-decoration:none; cursor:pointer;
+    touch-action:manipulation;
+  }
+  .popup-action:active { background:#249900; }
 
   /* Closing */
   .closing-wrap { max-width:340px; text-align:center }
@@ -990,6 +998,7 @@
     <button class="popup-close" id="popupClose" aria-label="닫기">×</button>
     <img id="popupImage" src="" alt="">
     <span class="popup-counter" id="popupCounter"></span>
+    <a id="popupAction" class="popup-action" href="#" target="_blank" rel="noopener" style="display:none"></a>
   </div>
 </div>
 
@@ -1287,7 +1296,7 @@ async function loadGuestbook() {
 const _POPUP_BASE = `${window.SUPABASE_URL}/storage/v1/object/public/popup`;
 const ENTRY_POPUPS = [
   { src: `${_POPUP_BASE}/bus.webp`, alt: '8월 1일 대구-서울 버스 탑승 안내' },
-  // { src: `${_POPUP_BASE}/band.webp`, alt: '중앙제일밴드 축하공연 및 뒷풀이 안내' },
+  { src: `${_POPUP_BASE}/band.webp`, alt: '중앙제일밴드 축하공연 및 뒷풀이 안내', link: 'https://naver.me/xP8rvjOA', linkText: '길찾기' },
 ];
 let popupIndex = 0;
 
@@ -1295,11 +1304,22 @@ function showEntryPopup(i) {
   const overlay = document.getElementById('popupOverlay');
   const img = document.getElementById('popupImage');
   const counter = document.getElementById('popupCounter');
+  const action = document.getElementById('popupAction');
   if (!overlay || !img) return;
   popupIndex = i;
-  img.src = ENTRY_POPUPS[i].src;
-  img.alt = ENTRY_POPUPS[i].alt;
+  const p = ENTRY_POPUPS[i];
+  img.src = p.src;
+  img.alt = p.alt;
   counter.textContent = ENTRY_POPUPS.length > 1 ? `${i + 1} / ${ENTRY_POPUPS.length}` : '';
+  if (action) {
+    if (p.link) {
+      action.href = p.link;
+      action.textContent = p.linkText || '바로가기';
+      action.style.display = 'block';
+    } else {
+      action.style.display = 'none';
+    }
+  }
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
