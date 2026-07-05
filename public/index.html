@@ -1438,8 +1438,13 @@ function setupEntryPopups() {
 function openGuestbook() {
   const ov = document.getElementById('gbOverlay');
   if (!ov) return;
+  // iOS에서도 안전하게 페이지 스크롤 완전 잠금
+  const scrollY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.width = '100%';
+  document.body.dataset.gbScrollY = scrollY;
   ov.classList.add('open');
-  document.body.style.overflow = 'hidden';
   loadGuestbook();
 }
 
@@ -1447,7 +1452,12 @@ function closeGuestbook() {
   const ov = document.getElementById('gbOverlay');
   if (!ov) return;
   ov.classList.remove('open');
-  document.body.style.overflow = '';
+  // 잠갔던 스크롤 위치 복원
+  const scrollY = parseInt(document.body.dataset.gbScrollY || '0', 10);
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  window.scrollTo(0, scrollY);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1475,16 +1485,11 @@ document.addEventListener('DOMContentLoaded', () => {
     chatNameEl.style.display = 'none';
   }
 
-  // 채팅창 boundary에서 페이지 스크롤로 전파 (위로 다시 올라갈 수 있게)
-  const chatMessagesEl = document.getElementById('chatMessages');
-  if (chatMessagesEl) {
-    chatMessagesEl.addEventListener('wheel', e => {
-      const atTop    = chatMessagesEl.scrollTop <= 0;
-      const atBottom = chatMessagesEl.scrollTop + chatMessagesEl.clientHeight >= chatMessagesEl.scrollHeight - 1;
-      if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
-        window.scrollBy({ top: e.deltaY, behavior: 'auto' });
-      }
-    }, { passive: true });
+  // 방명록 오버레이 안에서 wheel 이벤트가 페이지로 전파되지 않도록 차단
+  const gbOverlayEl = document.getElementById('gbOverlay');
+  if (gbOverlayEl) {
+    gbOverlayEl.addEventListener('wheel', e => { e.stopPropagation(); }, { passive: true });
+    gbOverlayEl.addEventListener('touchmove', e => { e.stopPropagation(); }, { passive: true });
   }
 
   // 채팅 폼 제출
