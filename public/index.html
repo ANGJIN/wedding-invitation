@@ -599,6 +599,33 @@
 
   .thanks-section { text-align:center; }
 
+  /* 안내 버튼 섹션 (버스/공연 팝업 재열기) */
+  .guide-section {
+    margin-top:36px; padding-top:28px;
+    border-top:1px solid rgba(212,168,83,.25);
+    text-align:center;
+  }
+  .guide-eyebrow {
+    font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:3px;
+    color:rgba(58,42,26,.45); margin-bottom:8px; text-transform:uppercase;
+  }
+  .guide-title {
+    font-family:'Noto Serif KR',serif; font-size:16px; font-weight:300;
+    color:#3A2A1A; letter-spacing:2px; margin-bottom:20px;
+  }
+  .guide-buttons {
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .guide-btn {
+    width:100%; padding:13px 16px;
+    background:rgba(255,255,255,.55); border:1px solid rgba(212,168,83,.4);
+    border-radius:12px; cursor:pointer; touch-action:manipulation;
+    font-family:'Noto Serif KR',serif; font-size:13px; letter-spacing:1.5px;
+    color:#5A3E28; transition: background .18s, border-color .18s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .guide-btn:active { background:rgba(212,168,83,.18); border-color:rgba(212,168,83,.6); }
+
   .acc-group {
     background:rgba(255,255,255,.5);
     border:1px solid rgba(212,168,83,.3);
@@ -972,6 +999,19 @@
           </div>
         </div>
       </div>
+
+      <div class="guide-section">
+        <div class="guide-eyebrow">Guide</div>
+        <h2 class="guide-title">안내사항</h2>
+        <div class="guide-buttons">
+          <button class="guide-btn" type="button" data-popup="0">
+            🚌 버스 대절 안내
+          </button>
+          <button class="guide-btn" type="button" data-popup="1">
+            🎷 공연 및 뒷풀이 안내
+          </button>
+        </div>
+      </div>
     </section>
   </div>
 </div>
@@ -1335,11 +1375,41 @@ function closeEntryPopup() {
   document.body.style.overflow = '';
 }
 
+function openEntryPopupSingle(i) {
+  popupIndex = i;
+  const overlay = document.getElementById('popupOverlay');
+  const img = document.getElementById('popupImage');
+  const counter = document.getElementById('popupCounter');
+  const action = document.getElementById('popupAction');
+  if (!overlay || !img) return;
+  const p = ENTRY_POPUPS[i];
+  img.src = p.src;
+  img.alt = p.alt;
+  counter.textContent = '';
+  if (action) {
+    if (p.link) {
+      action.href = p.link;
+      action.textContent = p.linkText || '바로가기';
+      action.style.display = 'block';
+    } else {
+      action.style.display = 'none';
+    }
+  }
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
 function setupEntryPopups() {
   if (!ENTRY_POPUPS.length) return;
   document.getElementById('popupClose').addEventListener('click', closeEntryPopup);
   document.getElementById('popupOverlay').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeEntryPopup();
+  });
+  document.querySelectorAll('.guide-btn[data-popup]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.popup, 10);
+      if (!isNaN(idx) && idx < ENTRY_POPUPS.length) openEntryPopupSingle(idx);
+    });
   });
   showEntryPopup(0);
 }
